@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 
-import 'models/point.dart';
+import 'point.dart';
 
 class MathUtils {
   MathUtils() {
@@ -78,8 +78,8 @@ class MathUtils {
   }
 
   /// Decode a [geohash] string into [_LatLngWithErrors].
-  /// It includes 'latitude', 'longitude','latitudeError','longitudeError'.
-  _LatLngWithErrors decode(String geohash) {
+  /// It includes 'latitude', 'longitude', 'latitudeError', 'longitudeError'.
+  _LatLngWithErrors _decode(String geohash) {
     final boundingBox = _decodedBoundingBox(geohash);
     final latitude = (boundingBox.minLatitude + boundingBox.maxLatitude) / 2;
     final longitude = (boundingBox.minLongitude + boundingBox.maxLongitude) / 2;
@@ -134,7 +134,7 @@ class MathUtils {
   /// Return all neighbors' geohash strings of given [geohash] clockwise,
   /// in the following order, north, east, south, and then west.
   List<String> neighborsOfGeohash(String geohash) {
-    final latLngWithErrors = decode(geohash);
+    final latLngWithErrors = _decode(geohash);
     return [
       _encodeNeighbor(
         latLngWithErrors: latLngWithErrors,
