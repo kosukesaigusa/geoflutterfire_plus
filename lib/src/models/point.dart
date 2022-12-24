@@ -4,6 +4,7 @@ import '../utils/math.dart';
 
 class GeoFirePoint {
   GeoFirePoint(this.latitude, this.longitude);
+
   static final MathUtils _util = MathUtils();
   double latitude;
   double longitude;

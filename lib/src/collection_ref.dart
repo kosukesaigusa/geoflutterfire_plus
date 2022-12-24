@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../geoflutterfire_ks.dart';
+import '../geoflutterfire_plus.dart';
 import 'utils/math.dart';
 
 /// ドキュメントスナップショットと中心からの距離をまとめたクラス。
-class GeoFlutterFireDocumentSnapshot<T> {
-  GeoFlutterFireDocumentSnapshot({
+class GeoDocumentSnapshot<T> {
+  GeoDocumentSnapshot({
     required this.documentSnapshot,
     required this.kilometers,
   });
@@ -19,13 +19,13 @@ class GeoFlutterFireDocumentSnapshot<T> {
 }
 
 ///
-class GeoFlutterFireCollectionRef<T> {
-  GeoFlutterFireCollectionRef(this._collectionReference);
+class GeoCollectionRef<T> {
+  GeoCollectionRef(this._collectionReference);
 
   ///
   final Query<T> _collectionReference;
 
-  Stream<List<GeoFlutterFireDocumentSnapshot<T>>> within({
+  Stream<List<GeoDocumentSnapshot<T>>> within({
     required GeoFirePoint center,
     required double radius,
     required String field,
@@ -85,7 +85,7 @@ class GeoFlutterFireCollectionRef<T> {
           lat: geoPoint.latitude,
           lng: geoPoint.longitude,
         );
-        return GeoFlutterFireDocumentSnapshot(
+        return GeoDocumentSnapshot(
           documentSnapshot: queryDocumentSnapshot,
           kilometers: kilometers,
         );
@@ -98,9 +98,7 @@ class GeoFlutterFireCollectionRef<T> {
                   doc.kilometers <= radius * 1.02, // buffer for edge distances;
             )
           : mappedList;
-      return nullableFilteredList
-          .whereType<GeoFlutterFireDocumentSnapshot<T>>()
-          .toList()
+      return nullableFilteredList.whereType<GeoDocumentSnapshot<T>>().toList()
         ..sort(
           (a, b) =>
               (a.kilometers * 1000).toInt() - (b.kilometers * 1000).toInt(),
