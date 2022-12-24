@@ -41,7 +41,7 @@ class GeoFirePoint {
   }) =>
       kmDistanceBetween(from: coords, to: Coordinates(lat, lng));
 
-  Map<String, Object> get data => {'geopoint': geoPoint, 'geohash': hash};
+  Map<String, Object> get data => {'geopoint': geoPoint, 'geohash': geoHash};
 
   /// haversine distance between [GeoFirePoint] and ([lat], [lng])
   double haversineDistance({
