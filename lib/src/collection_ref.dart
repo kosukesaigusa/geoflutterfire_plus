@@ -30,11 +30,9 @@ class GeoCollectionRef<T> {
     required double radius,
     required String field,
     required GeoPoint Function(T obj) geoPointFromObject,
+    // TODO: strictMode の説明を書く
     bool strictMode = false,
   }) {
-    //
-    final nonNullStrictMode = strictMode;
-
     // int: geoHash の精度（桁数）
     final precision = MathUtils.setPrecision(radius);
 
@@ -52,7 +50,10 @@ class GeoCollectionRef<T> {
     final collectionStreams = geoHashes
         .map(
           (geoHash) => _collectionReference
-              .orderBy('$field.geoHash')
+              // TODO: geohash はあくまでも Firestore の ドキュメントの Map フィールドのキー名なので
+              //  外からしていできるようにもしておくべき。
+              //  また、geopoint は Firestore で使われているので、そのまま全部小文字で表記すべき
+              .orderBy('$field.geohash')
               .startAt([geoHash])
               .endAt(['$geoHash~'])
               .snapshots()
@@ -91,7 +92,7 @@ class GeoCollectionRef<T> {
         );
       }).toList();
 
-      final nullableFilteredList = nonNullStrictMode
+      final nullableFilteredList = strictMode
           ? mappedList.where(
               (doc) =>
                   doc != null &&
