@@ -29,33 +29,33 @@ class GeoCollectionRef<T> {
     required GeoFirePoint center,
     required double radius,
     required String field,
-    required GeoPoint Function(T obj) geoPointFromObject,
+    required GeoPoint Function(T obj) geopointFromObject,
     // TODO: strictMode の説明を書く
     bool strictMode = false,
   }) {
-    // int: geoHash の精度（桁数）
-    final precision = MathUtils.setPrecision(radius);
+    // int: geohash の精度（桁数）
+    final precision = MathUtils.geohashDigitsFromRadius(radius);
 
-    // String: 中心の geoHash
-    final centerGeoHash = center.geoHash.substring(0, precision);
+    // String: 中心の geohash
+    final centerGeoHash = center.geohash.substring(0, precision);
 
-    // List<String>: 検出範囲の geoHash 一覧（中心含む）
-    final geoHashes = [
-      ...GeoFirePoint.neighborsOf(geoHash: centerGeoHash),
+    // List<String>: 検出範囲の geohash 一覧（中心含む）
+    final geohashes = [
+      ...GeoFirePoint.neighborsOf(geohash: centerGeoHash),
       centerGeoHash,
     ];
 
     // Iterable of
-    // geoHash <= x <= geoHash~
-    final collectionStreams = geoHashes
+    // geohash <= x <= geohash~
+    final collectionStreams = geohashes
         .map(
-          (geoHash) => _collectionReference
+          (geohash) => _collectionReference
               // TODO: geohash はあくまでも Firestore の ドキュメントの Map フィールドのキー名なので
               //  外からしていできるようにもしておくべき。
               //  また、geopoint は Firestore で使われているので、そのまま全部小文字で表記すべき
               .orderBy('$field.geohash')
-              .startAt([geoHash])
-              .endAt(['$geoHash~'])
+              .startAt([geohash])
+              .endAt(['$geohash~'])
               .snapshots()
               .map((querySnapshot) => querySnapshot.docs),
         )
@@ -79,12 +79,12 @@ class GeoCollectionRef<T> {
           return null;
         }
         final data = queryDocumentSnapshot.data();
-        final geoPoint = geoPointFromObject(data);
+        final geopoint = geopointFromObject(data);
 
         // 中心と指定した緯度・経度の点との間の距離 (km)
         final kilometers = center.kilometers(
-          lat: geoPoint.latitude,
-          lng: geoPoint.longitude,
+          lat: geopoint.latitude,
+          lng: geopoint.longitude,
         );
         return GeoDocumentSnapshot(
           documentSnapshot: queryDocumentSnapshot,

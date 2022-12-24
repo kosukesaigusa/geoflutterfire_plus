@@ -14,35 +14,35 @@ class GeoFirePoint {
 
   /// return geographical distance between two Co-ordinates
   static double kmDistanceBetween({
-    required Coordinates to,
-    required Coordinates from,
+    required Coordinate to,
+    required Coordinate from,
   }) =>
-      MathUtils.kmDistance(to, from);
+      MathUtils.distanceInKilometers(to, from);
 
-  /// return neighboring geo-hashes of [geoHash]
-  static List<String> neighborsOf({required String geoHash}) =>
-      _util.neighbors(geoHash);
+  /// return neighboring geo-hashes of [geohash]
+  static List<String> neighborsOf({required String geohash}) =>
+      _util.neighborsOfGeohash(geohash);
 
   /// return hash of [GeoFirePoint]
-  String get geoHash => _util.encode(latitude: latitude, longitude: longitude);
+  String get geohash => _util.encode(latitude: latitude, longitude: longitude);
 
   /// return all neighbors of [GeoFirePoint]
-  List<String> get neighbors => _util.neighbors(geoHash);
+  List<String> get neighbors => _util.neighborsOfGeohash(geohash);
 
   /// return [GeoPoint] of [GeoFirePoint]
-  GeoPoint get geoPoint => GeoPoint(latitude, longitude);
+  GeoPoint get geopoint => GeoPoint(latitude, longitude);
 
-  Coordinates get coords => Coordinates(latitude, longitude);
+  Coordinate get coords => Coordinate(latitude, longitude);
 
   /// return distance between [GeoFirePoint] and ([lat], [lng])
   double kilometers({
     required double lat,
     required double lng,
   }) =>
-      kmDistanceBetween(from: coords, to: Coordinates(lat, lng));
+      kmDistanceBetween(from: coords, to: Coordinate(lat, lng));
 
   // TODO: 型を付ける
-  Map<String, Object> get data => {'geopoint': geoPoint, 'geohash': geoHash};
+  Map<String, Object> get data => {'geopoint': geopoint, 'geohash': geohash};
 
   /// haversine distance between [GeoFirePoint] and ([lat], [lng])
   double haversineDistance({
@@ -51,13 +51,13 @@ class GeoFirePoint {
   }) =>
       GeoFirePoint.kmDistanceBetween(
         from: coords,
-        to: Coordinates(lat, lng),
+        to: Coordinate(lat, lng),
       );
 }
 
 // TODO: Equatable にする。
-class Coordinates {
-  Coordinates(this.latitude, this.longitude);
+class Coordinate {
+  Coordinate(this.latitude, this.longitude);
   double latitude;
   double longitude;
 }
