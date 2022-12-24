@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
 
 import '../math.dart';
 
@@ -49,9 +50,11 @@ class GeoFirePoint {
       );
 }
 
-// TODO: Equatable にする。
-class Coordinates {
-  Coordinates(this.latitude, this.longitude);
-  double latitude;
-  double longitude;
+class Coordinates extends Equatable {
+  const Coordinates(this.latitude, this.longitude);
+  final double latitude;
+  final double longitude;
+
+  @override
+  List<Object> get props => [latitude, longitude];
 }

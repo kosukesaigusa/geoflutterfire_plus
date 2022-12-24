@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:equatable/equatable.dart';
+
 import 'models/point.dart';
 
 class MathUtils {
@@ -255,9 +257,8 @@ class MathUtils {
   static double _toRadians(double num) => num * (pi / 180.0);
 }
 
-/// TODO: Equatable にする
-class _DecodedBoundingBox {
-  _DecodedBoundingBox({
+class _DecodedBoundingBox extends Equatable {
+  const _DecodedBoundingBox({
     required this.minLatitude,
     required this.minLongitude,
     required this.maxLatitude,
@@ -268,11 +269,14 @@ class _DecodedBoundingBox {
   final double minLongitude;
   final double maxLatitude;
   final double maxLongitude;
+
+  @override
+  List<Object> get props =>
+      [minLatitude, minLongitude, maxLatitude, maxLongitude];
 }
 
-/// TODO: Equatable にする
-class _LatLngWithErrors {
-  _LatLngWithErrors({
+class _LatLngWithErrors extends Equatable {
+  const _LatLngWithErrors({
     required this.latitude,
     required this.longitude,
     required this.latitudeError,
@@ -283,4 +287,8 @@ class _LatLngWithErrors {
   final double longitude;
   final double latitudeError;
   final double longitudeError;
+
+  @override
+  List<Object> get props =>
+      [latitude, longitude, latitudeError, longitudeError];
 }
