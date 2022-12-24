@@ -3,7 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/math.dart';
 
 class GeoFirePoint {
-  GeoFirePoint(this.latitude, this.longitude);
+  GeoFirePoint({
+    required this.latitude,
+    required this.longitude,
+  });
 
   static final MathUtils _util = MathUtils();
   double latitude;
