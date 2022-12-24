@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import '../models/point.dart';
+import 'models/point.dart';
 
 class MathUtils {
   MathUtils() {
@@ -10,10 +10,10 @@ class MathUtils {
   ///
   static const _base32Codes = '0123456789bcdefghjkmnpqrstuvwxyz';
 
-  // The equatorial radius of the earth in meters
+  // The equatorial radius of the earth in meters.
   static const double _earthEqRadius = 6378137;
 
-  // The meridional radius of the earth in meters
+  // The meridional radius of the earth in meters.
   static const double _earthPolarRadius = 6357852.3;
 
   ///
@@ -75,16 +75,15 @@ class MathUtils {
     return characters.join();
   }
 
-  ///
-  /// Decode a [geohash] into a pair of latitude and longitude.
-  /// A map is returned with keys 'latitude', 'longitude','latitudeError','longitudeError'
-  LatLngWithErrors decode(String geohash) {
-    final bbox = _decodeBbox(geohash);
-    final latitude = (bbox[0] + bbox[2]) / 2;
-    final longitude = (bbox[1] + bbox[3]) / 2;
-    final latitudeError = bbox[2] - latitude;
-    final longitudeError = bbox[3] - longitude;
-    return LatLngWithErrors(
+  /// Decode a [geohash] string into [_LatLngWithErrors].
+  /// It includes 'latitude', 'longitude','latitudeError','longitudeError'.
+  _LatLngWithErrors decode(String geohash) {
+    final boundingBox = _decodedBoundingBox(geohash);
+    final latitude = (boundingBox.minLatitude + boundingBox.maxLatitude) / 2;
+    final longitude = (boundingBox.minLongitude + boundingBox.maxLongitude) / 2;
+    final latitudeError = boundingBox.maxLatitude - latitude;
+    final longitudeError = boundingBox.maxLongitude - longitude;
+    return _LatLngWithErrors(
       latitude: latitude,
       longitude: longitude,
       latitudeError: latitudeError,
@@ -92,19 +91,14 @@ class MathUtils {
     );
   }
 
-  ///
-  /// Decode Bounding box
-  ///
-  /// Decode a hashString into a bound box that matches it.
-  /// Data returned in a List [minLatitude, minLongitude, maxLatitude, maxLongitude]
-  List<double> _decodeBbox(String geohash) {
+  /// Decode a hashString into a bounding box that matches it.
+  _DecodedBoundingBox _decodedBoundingBox(String geohash) {
     var isLongitude = true;
     var maxLatitude = 90.0;
     var minLatitude = -90.0;
     var maxLongitude = 180.0;
     var minLongitude = -180.0;
-
-    for (var i = 0, l = geohash.length; i < l; i++) {
+    for (var i = 0; i < geohash.length; i++) {
       final code = geohash[i].toLowerCase();
       final hashValue = _base32CodesDic[code];
       for (var bits = 4; bits >= 0; bits--) {
@@ -127,7 +121,12 @@ class MathUtils {
         isLongitude = !isLongitude;
       }
     }
-    return [minLatitude, minLongitude, maxLatitude, maxLongitude];
+    return _DecodedBoundingBox(
+      minLatitude: minLatitude,
+      minLongitude: minLongitude,
+      maxLatitude: maxLatitude,
+      maxLongitude: maxLongitude,
+    );
   }
 
   /// Return all neighbors' geohash strings of given [geohash] clockwise,
@@ -188,7 +187,7 @@ class MathUtils {
 
   ///
   String _encodeNeighbor({
-    required LatLngWithErrors latLngWithErrors,
+    required _LatLngWithErrors latLngWithErrors,
     required String geohash,
     required double neighborLatDir,
     required double neighborLonDir,
@@ -236,23 +235,17 @@ class MathUtils {
   }
 
   /// Returns distance between [to] and [from] in kilometers.
-  static double distanceInKilometers(
-    Coordinate to,
-    Coordinate from,
-  ) {
-    final latitude1 = to.latitude;
-    final longitude1 = to.longitude;
-    final latitude2 = from.latitude;
-    final longitude2 = from.longitude;
-
-    // Earth's mean radius in meters
+  static double distanceInKm({
+    required Coordinates from,
+    required Coordinates to,
+  }) {
     const radius = (_earthEqRadius + _earthPolarRadius) / 2;
-    final latDelta = _toRadians(latitude1 - latitude2);
-    final lonDelta = _toRadians(longitude1 - longitude2);
+    final latDelta = _toRadians(to.latitude - from.latitude);
+    final lonDelta = _toRadians(to.longitude - from.longitude);
 
     final a = (sin(latDelta / 2) * sin(latDelta / 2)) +
-        (cos(_toRadians(latitude1)) *
-            cos(_toRadians(latitude2)) *
+        (cos(_toRadians(to.latitude)) *
+            cos(_toRadians(from.latitude)) *
             sin(lonDelta / 2) *
             sin(lonDelta / 2));
     final distance = radius * 2 * atan2(sqrt(a), sqrt(1 - a)) / 1000;
@@ -263,8 +256,23 @@ class MathUtils {
 }
 
 /// TODO: Equatable にする
-class LatLngWithErrors {
-  LatLngWithErrors({
+class _DecodedBoundingBox {
+  _DecodedBoundingBox({
+    required this.minLatitude,
+    required this.minLongitude,
+    required this.maxLatitude,
+    required this.maxLongitude,
+  });
+
+  final double minLatitude;
+  final double minLongitude;
+  final double maxLatitude;
+  final double maxLongitude;
+}
+
+/// TODO: Equatable にする
+class _LatLngWithErrors {
+  _LatLngWithErrors({
     required this.latitude,
     required this.longitude,
     required this.latitudeError,

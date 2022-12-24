@@ -2,20 +2,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../geoflutterfire_plus.dart';
-import 'utils/math.dart';
+import 'math.dart';
 
 /// ドキュメントスナップショットと中心からの距離をまとめたクラス。
 class GeoDocumentSnapshot<T> {
   GeoDocumentSnapshot({
     required this.documentSnapshot,
-    required this.kilometers,
+    required this.distanceFromCenterInKm,
   });
 
-  ///
+  /// Fetched [DocumentSnapshot].
   final DocumentSnapshot<T> documentSnapshot;
 
-  ///
-  final double kilometers;
+  /// Distance from center in kilometers.
+  final double distanceFromCenterInKm;
 }
 
 ///
@@ -41,7 +41,7 @@ class GeoCollectionRef<T> {
 
     // List<String>: 検出範囲の geohash 一覧（中心含む）
     final geohashes = [
-      ...GeoFirePoint.neighborsOf(geohash: centerGeoHash),
+      ...GeoFlutterFireUtil.neighborGeohashesOf(geohash: centerGeoHash),
       centerGeoHash,
     ];
 
@@ -50,9 +50,6 @@ class GeoCollectionRef<T> {
     final collectionStreams = geohashes
         .map(
           (geohash) => _collectionReference
-              // TODO: geohash はあくまでも Firestore の ドキュメントの Map フィールドのキー名なので
-              //  外からしていできるようにもしておくべき。
-              //  また、geopoint は Firestore で使われているので、そのまま全部小文字で表記すべき
               .orderBy('$field.geohash')
               .startAt([geohash])
               .endAt(['$geohash~'])
@@ -82,13 +79,14 @@ class GeoCollectionRef<T> {
         final geopoint = geopointFromObject(data);
 
         // 中心と指定した緯度・経度の点との間の距離 (km)
-        final kilometers = center.kilometers(
-          lat: geopoint.latitude,
-          lng: geopoint.longitude,
+        final kilometers = center.distanceBetweenInKm(
+          latitude: geopoint.latitude,
+          longitude: geopoint.longitude,
         );
+
         return GeoDocumentSnapshot(
           documentSnapshot: queryDocumentSnapshot,
-          kilometers: kilometers,
+          distanceFromCenterInKm: kilometers,
         );
       }).toList();
 
@@ -96,13 +94,15 @@ class GeoCollectionRef<T> {
           ? mappedList.where(
               (doc) =>
                   doc != null &&
-                  doc.kilometers <= radius * 1.02, // buffer for edge distances;
+                  doc.distanceFromCenterInKm <=
+                      radius * 1.02, // buffer for edge distances;
             )
           : mappedList;
       return nullableFilteredList.whereType<GeoDocumentSnapshot<T>>().toList()
         ..sort(
           (a, b) =>
-              (a.kilometers * 1000).toInt() - (b.kilometers * 1000).toInt(),
+              (a.distanceFromCenterInKm * 1000).toInt() -
+              (b.distanceFromCenterInKm * 1000).toInt(),
         );
     });
     return filtered.asBroadcastStream();

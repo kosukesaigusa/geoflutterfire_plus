@@ -1,29 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../utils/math.dart';
+import '../math.dart';
 
+///
 class GeoFirePoint {
-  GeoFirePoint({
-    required this.latitude,
-    required this.longitude,
-  });
+  GeoFirePoint(
+    this.latitude,
+    this.longitude,
+  );
 
   static final MathUtils _util = MathUtils();
   double latitude;
   double longitude;
 
-  /// return geographical distance between two Co-ordinates
-  static double kmDistanceBetween({
-    required Coordinate to,
-    required Coordinate from,
-  }) =>
-      MathUtils.distanceInKilometers(to, from);
-
-  /// return neighboring geo-hashes of [geohash]
-  static List<String> neighborsOf({required String geohash}) =>
-      _util.neighborsOfGeohash(geohash);
-
-  /// return hash of [GeoFirePoint]
+  /// Return geohash of [GeoFirePoint].
   String get geohash => _util.encode(latitude: latitude, longitude: longitude);
 
   /// return all neighbors of [GeoFirePoint]
@@ -32,32 +22,36 @@ class GeoFirePoint {
   /// return [GeoPoint] of [GeoFirePoint]
   GeoPoint get geopoint => GeoPoint(latitude, longitude);
 
-  Coordinate get coords => Coordinate(latitude, longitude);
+  ///
+  Coordinates get coordinates => Coordinates(latitude, longitude);
 
-  /// return distance between [GeoFirePoint] and ([lat], [lng])
-  double kilometers({
-    required double lat,
-    required double lng,
+  /// return distance between [GeoFirePoint] and given ([latitude], [longitude])
+  double distanceBetweenInKm({
+    required double latitude,
+    required double longitude,
   }) =>
-      kmDistanceBetween(from: coords, to: Coordinate(lat, lng));
+      MathUtils.distanceInKm(
+        from: coordinates,
+        to: Coordinates(latitude, longitude),
+      );
 
   // TODO: 型を付ける
   Map<String, Object> get data => {'geopoint': geopoint, 'geohash': geohash};
 
-  /// haversine distance between [GeoFirePoint] and ([lat], [lng])
+  /// haversine distance between [GeoFirePoint] and given ([lat], [lng])
   double haversineDistance({
     required double lat,
     required double lng,
   }) =>
-      GeoFirePoint.kmDistanceBetween(
-        from: coords,
-        to: Coordinate(lat, lng),
+      MathUtils.distanceInKm(
+        from: coordinates,
+        to: Coordinates(lat, lng),
       );
 }
 
 // TODO: Equatable にする。
-class Coordinate {
-  Coordinate(this.latitude, this.longitude);
+class Coordinates {
+  Coordinates(this.latitude, this.longitude);
   double latitude;
   double longitude;
 }
