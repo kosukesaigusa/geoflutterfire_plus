@@ -43,7 +43,7 @@ const _base32CodesMap = <String, int>{
   'z': 31,
 };
 
-/// Return geohash String from [latitude] and [longitude],
+/// Returns geohash String from [latitude] and [longitude],
 /// whose length is equal to [geohashLength].
 String encode({
   required double latitude,
@@ -92,7 +92,7 @@ String encode({
   return characters.join();
 }
 
-/// Decode a [geohash] string into [_CoordinatesWithErrors].
+/// Decodes a [geohash] string into [_CoordinatesWithErrors].
 /// It includes 'latitude', 'longitude', 'latitudeError', 'longitudeError'.
 _CoordinatesWithErrors _decode(String geohash) {
   final boundingBox = _decodedBoundingBox(geohash);
@@ -108,7 +108,7 @@ _CoordinatesWithErrors _decode(String geohash) {
   );
 }
 
-/// Decode a hashString into a bounding box that matches it.
+/// Decodes a hashString into a bounding box that matches it.
 _DecodedBoundingBox _decodedBoundingBox(String geohash) {
   var isLongitude = true;
   var maxLatitude = 90.0;
@@ -146,7 +146,7 @@ _DecodedBoundingBox _decodedBoundingBox(String geohash) {
   );
 }
 
-/// Return all neighbors' geohash strings of given [geohash] clockwise,
+/// Returns all neighbors' geohash strings of given [geohash] clockwise,
 /// in the following order, north, east, south, and then west.
 List<String> neighborsOfGeohash(String geohash) {
   final coordinatesWithErrors = _decode(geohash);
@@ -202,7 +202,7 @@ List<String> neighborsOfGeohash(String geohash) {
   ];
 }
 
-/// Return neighbor geohash of given [coordinatesWithErrors].
+/// Returns neighbor geohash of given [coordinatesWithErrors].
 String _encodeNeighbor({
   required _CoordinatesWithErrors coordinatesWithErrors,
   required String geohash,
@@ -217,7 +217,7 @@ String _encodeNeighbor({
       geohashLength: geohash.length,
     );
 
-/// Return geohash digits from [radius] in kilometers,
+/// Returns geohash digits from [radius] in kilometers,
 /// which decide how precisely detect neighbors.
 ///
 /// * 1	≤ 5,000km	×	5,000km
