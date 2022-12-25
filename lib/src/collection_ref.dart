@@ -3,6 +3,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../geoflutterfire_plus.dart';
 import 'math.dart';
+import 'utils.dart';
 
 /// ドキュメントスナップショットと中心からの距離をまとめたクラス。
 class GeoDocumentSnapshot<T> {
@@ -34,14 +35,14 @@ class GeoCollectionRef<T> {
     bool strictMode = false,
   }) {
     // int: geohash の精度（桁数）
-    final precision = MathUtils.geohashDigitsFromRadius(radius);
+    final precision = geohashDigitsFromRadius(radius);
 
     // String: 中心の geohash
     final centerGeoHash = center.geohash.substring(0, precision);
 
     // List<String>: 検出範囲の geohash 一覧（中心含む）
     final geohashes = [
-      ...GeoFlutterFireUtil.neighborGeohashesOf(geohash: centerGeoHash),
+      ...neighborGeohashesOf(geohash: centerGeoHash),
       centerGeoHash,
     ];
 
