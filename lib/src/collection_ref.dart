@@ -3,7 +3,6 @@ import 'package:rxdart/rxdart.dart';
 
 import '../geoflutterfire_plus.dart';
 import 'math.dart';
-import 'utils.dart';
 
 /// ドキュメントスナップショットと中心からの距離をまとめたクラス。
 class GeoDocumentSnapshot<T> {
