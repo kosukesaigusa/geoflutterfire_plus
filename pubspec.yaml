@@ -1,5 +1,5 @@
 name: geoflutterfire_plus
-description: A new Flutter package project.
+description: geoflutterfire_plus is an open-source library, inspired by https://github.com/DarshanGowda0/GeoFlutterFire, to enable your flutter app to store and query cloud firestore documents based on their geographic location with latest version of Flutter SDK, Dart SDK, and dependency packages.
 version: 0.0.1
 homepage: https://github.com/KosukeSaigusa/getflutterfire_ks
 
