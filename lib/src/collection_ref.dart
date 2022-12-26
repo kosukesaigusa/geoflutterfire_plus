@@ -90,7 +90,8 @@ class GeoCollectionRef<T> {
         )
         .toList();
 
-    final mergedCollectionStreams = Rx.combineLatest(
+    final mergedCollectionStreams = Rx.combineLatest<
+        List<QueryDocumentSnapshot<T>>, List<QueryDocumentSnapshot<T>>>(
       collectionStreams,
       (values) => [
         for (final queryDocumentSnapshots in values) ...queryDocumentSnapshots,
