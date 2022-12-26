@@ -3,5 +3,7 @@ enable-beta-ecosystems: true
 updates:
   - package-ecosystem: "pub"
     directory: "/"
+    assignees:
+      - "KosukeSaigusa"
     schedule:
       interval: "daily"
