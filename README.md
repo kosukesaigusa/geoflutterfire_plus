@@ -99,4 +99,3 @@ final Stream<List<DocumentSnapshot<GeoUser>>> stream =
   geopointFrom: geopointFrom,
 );
 ```
-
