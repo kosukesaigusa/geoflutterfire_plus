@@ -48,7 +48,8 @@ class GeoCollectionRef<T> {
   ///
   /// * [center] Center point of detection.
   /// * [radiusInKm] Detection range in kilometers.
-  /// * [field]
+  /// * [field] Field name of cloud_firestore document.
+  /// * [geopointFrom]
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
   Stream<List<DocumentSnapshot<T>>> within({
@@ -74,7 +75,8 @@ class GeoCollectionRef<T> {
   ///
   /// * [center] Center point of detection.
   /// * [radiusInKm] Detection range in kilometers.
-  /// * [field]
+  /// * [field] Field name of cloud_firestore document.
+  /// * [geopointFrom]
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
   Stream<List<GeoDocumentSnapshot<T>>> withinWithDistance({
