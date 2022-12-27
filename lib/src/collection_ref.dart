@@ -4,24 +4,10 @@ import 'package:rxdart/rxdart.dart';
 import '../geoflutterfire_plus.dart';
 import 'math.dart';
 
-/// An entity to handle cloud_firestore [DocumentSnapshot] with distance from
-/// given center in kilometers.
-class GeoDocumentSnapshot<T> {
-  GeoDocumentSnapshot({
-    required this.documentSnapshot,
-    required this.distanceFromCenterInKm,
-  });
-
-  /// Fetched [DocumentSnapshot].
-  final DocumentSnapshot<T> documentSnapshot;
-
-  /// Distance from center in kilometers.
-  final double distanceFromCenterInKm;
-}
-
 /// Extended cloud_firestore [CollectionReference] for geo query features.
 class GeoCollectionRef<T> {
-  GeoCollectionRef(this._collectionReference);
+  GeoCollectionRef(CollectionReference<T> collectionReference)
+      : _collectionReference = collectionReference;
 
   /// [CollectionReference] of target collection.
   final CollectionReference<T> _collectionReference;
@@ -65,7 +51,33 @@ class GeoCollectionRef<T> {
   /// * [field]
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
-  Stream<List<GeoDocumentSnapshot<T>>> within({
+  Stream<List<DocumentSnapshot<T>>> within({
+    required GeoFirePoint center,
+    required double radiusInKm,
+    required String field,
+    required GeoPoint Function(T obj) geopointFrom,
+    bool strictMode = false,
+  }) =>
+      withinWithDistance(
+        center: center,
+        radiusInKm: radiusInKm,
+        field: field,
+        geopointFrom: geopointFrom,
+        strictMode: strictMode,
+      ).map(
+        (snapshots) =>
+            snapshots.map((snapshot) => snapshot.documentSnapshot).toList(),
+      );
+
+  /// Notifies of geo query results with distance from center in kilometers by
+  /// given condition.
+  ///
+  /// * [center] Center point of detection.
+  /// * [radiusInKm] Detection range in kilometers.
+  /// * [field]
+  /// * [strictMode] Whether to filter documents strictly within the bound of
+  /// given radius.
+  Stream<List<GeoDocumentSnapshot<T>>> withinWithDistance({
     required GeoFirePoint center,
     required double radiusInKm,
     required String field,
@@ -134,4 +146,19 @@ class GeoCollectionRef<T> {
     });
     return filtered.asBroadcastStream();
   }
+}
+
+/// A model to handle cloud_firestore [DocumentSnapshot] with distance from
+/// given center in kilometers.
+class GeoDocumentSnapshot<T> {
+  GeoDocumentSnapshot({
+    required this.documentSnapshot,
+    required this.distanceFromCenterInKm,
+  });
+
+  /// Fetched [DocumentSnapshot].
+  final DocumentSnapshot<T> documentSnapshot;
+
+  /// Distance from center in kilometers.
+  final double distanceFromCenterInKm;
 }

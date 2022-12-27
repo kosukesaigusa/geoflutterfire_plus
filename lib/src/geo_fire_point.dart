@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 
 import 'math.dart';
 
-/// An entity saved in Cloud Firestore as geopoint field.
+/// A model corresponds to Cloud Firestore as geopoint field.
 class GeoFirePoint {
   GeoFirePoint(this.latitude, this.longitude);
 
