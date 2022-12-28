@@ -13,7 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   geoflutterfire_plus:
-    path: ../../
+    path: ../
   google_maps_flutter: ^2.2.2
 
 dev_dependencies:

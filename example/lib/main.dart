@@ -49,6 +49,7 @@ class MapPage extends StatefulWidget {
   MapPageState createState() => MapPageState();
 }
 
+/// Example page using [GoogleMap].
 class MapPageState extends State<MapPage> {
   /// Camera position on Google Maps.
   /// Used as center point when running geo query.
@@ -319,8 +320,8 @@ class _AddLocationModalBottomSheetState
       'location': geoFirePoint.data,
     });
     debugPrint('🌍 Location data is successfully added: '
-        'latitude: $latitude, '
-        'longitude: $longitude, '
+        'lat: $latitude, '
+        'lng: $longitude, '
         'geohash: ${geoFirePoint.geohash}');
   }
 }
