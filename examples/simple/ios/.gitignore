@@ -36,3 +36,6 @@ Runner/GeneratedPluginRegistrant.*
 # Firebase configuration
 /Runner/GoogleService-Info.plist
 firebase_app_id_file.json
+
+# Secrets
+Runner/Environment.swift
