@@ -1,12 +1,13 @@
-name: geoflutterfire_plus
-description: geoflutterfire_plus simple Flutter project example.
+name: simple
+description: A new Flutter project.
 publish_to: 'none'
+version: 1.0.0+1
 
 environment:
   sdk: '>=2.16.0 <3.0.0'
 
 dependencies:
-  cloud_firestore: ^4.3.0
+  cupertino_icons: ^1.0.2
   flutter:
     sdk: flutter
 
@@ -14,3 +15,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   pedantic_mono: ^1.20.1
+
+flutter:
+  uses-material-design: true
