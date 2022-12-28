@@ -1,6 +1,6 @@
 # Examples
 
-## Pure Flutter
+## Simple
 
 ## Riverpod
 

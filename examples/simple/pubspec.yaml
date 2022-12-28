@@ -1,0 +1,16 @@
+name: geoflutterfire_plus
+description: geoflutterfire_plus simple Flutter project example.
+publish_to: 'none'
+
+environment:
+  sdk: '>=2.16.0 <3.0.0'
+
+dependencies:
+  cloud_firestore: ^4.3.0
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  pedantic_mono: ^1.20.1
