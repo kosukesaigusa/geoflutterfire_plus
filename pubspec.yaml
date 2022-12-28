@@ -4,8 +4,8 @@ version: 0.0.1
 homepage: https://github.com/KosukeSaigusa/getflutterfire_ks
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
-  flutter: '>=1.12.13+hotfix.5'
+  sdk: '>=2.16.0 <3.0.0'
+  flutter: '>=2.10.0'
 
 dependencies:
   cloud_firestore: ^4.3.0
