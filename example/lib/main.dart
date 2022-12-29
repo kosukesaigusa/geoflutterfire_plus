@@ -79,6 +79,7 @@ class MapPageState extends State<MapPage> {
             field: 'location',
             geopointFrom: (data) => (data['location']
                 as Map<String, dynamic>)['geopoint'] as GeoPoint,
+            strictMode: true,
           )
               .listen((documentSnapshots) {
             final markers = <Marker>{};
@@ -107,7 +108,7 @@ class MapPageState extends State<MapPage> {
   static const double _initialRadiusInKm = 1;
 
   /// Google Maps initial camera zoom level.
-  static const double _initialZoom = 12;
+  static const double _initialZoom = 14;
 
   /// Google Maps initial camera position.
   static final _initialCameraPosition = CameraPosition(
