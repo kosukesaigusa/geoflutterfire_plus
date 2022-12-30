@@ -66,7 +66,7 @@ The created document would be like the screenshot below. Geohash string (`geohas
 
 In order to query location documents within a 50km radius of Tokyo station, you will write query like the following:
 
-### Basic
+### Basic query
 
 ```dart
 // Center of the geo query.
