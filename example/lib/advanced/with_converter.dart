@@ -4,10 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:simple/advanced/utils.dart';
 
 import '../add_location.dart';
 import 'entity.dart';
+import 'utils.dart';
 
 class WithConverterExample extends StatefulWidget {
   const WithConverterExample({super.key});
@@ -133,7 +133,7 @@ class WithConverterExampleState extends State<WithConverterExample> {
               alignment: Alignment.topCenter,
               child: Container(
                 width: double.infinity,
-                margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                margin: const EdgeInsets.only(top: 64, left: 16, right: 16),
                 padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
                   color: Colors.black38,
