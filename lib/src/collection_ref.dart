@@ -5,8 +5,8 @@ import '../geoflutterfire_plus.dart';
 import 'math.dart';
 
 /// Extended cloud_firestore [CollectionReference] for geo query features.
-class GeoCollectionRef<T> {
-  GeoCollectionRef(CollectionReference<T> collectionReference)
+class GeoCollectionReference<T> {
+  GeoCollectionReference(CollectionReference<T> collectionReference)
       : _collectionReference = collectionReference;
 
   /// [CollectionReference] of target collection.

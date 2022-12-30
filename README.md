@@ -45,11 +45,11 @@ final Map<String, dynamic> data = geoFirePoint.data;
 print(data);
 ```
 
-`GeoCollectionRef` instance provides `add` method to create a new document in the collection (internally, just calling `add` method of `cloud_firestore`).
+`GeoCollectionReference` instance provides `add` method to create a new document in the collection (internally, just calling `add` method of `cloud_firestore`).
 
 ```dart
 // Add new documents to locations collection.
-GeoCollectionRef<Map<String, dynamic>>(
+GeoCollectionReference<Map<String, dynamic>>(
   FirebaseFirestore.instance.collection('locations'),
 ).add(<String, dynamic>{
   'geo': geoFirePoint.data,
@@ -75,11 +75,11 @@ The created document would be like the screenshot below. Geohash string (`geohas
 
 ![Cloud Firestore](https://user-images.githubusercontent.com/13669049/210048071-e437839c-f1da-4307-b5ad-63aeba2b30e9.png)
 
-In order to set or update the pair of latitude and longitude as `cloud_firestore` GeoPoint and Geohash string on the specified document's given field, `GeoCollectionRef.setPoint` is available.
+In order to set or update the pair of latitude and longitude as `cloud_firestore` GeoPoint and Geohash string on the specified document's given field, `GeoCollectionReference.setPoint` is available.
 
 ```dart
 // Set or update geo field on the specified document.
-GeoCollectionRef(FirebaseFirestore.instance.collection('locations'))
+GeoCollectionReference(FirebaseFirestore.instance.collection('locations'))
     .setPoint(
   id: 'your-document-id',
   field: 'geo',
@@ -118,7 +118,7 @@ GeoPoint geopointFrom(Map<String, dynamic> data) =>
 ```dart
 // Streamed document snapshots of geo query under given conditions.
 final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
-    GeoCollectionRef<Map<String, dynamic>>(collectionReference).within(
+    GeoCollectionReference<Map<String, dynamic>>(collectionReference).within(
   center: center,
   radiusInKm: radiusInKm,
   field: field,
@@ -200,7 +200,7 @@ You can write query in the same way as the first example.
 ```dart
 // Streamed document snapshots of geo query under given conditions.
 final Stream<List<DocumentSnapshot<Location>>> stream =
-    GeoCollectionRef<Location>(typedCollectionReference).within(
+    GeoCollectionReference<Location>(typedCollectionReference).within(
   center: center,
   radiusInKm: radiusInKm,
   field: field,
@@ -227,7 +227,7 @@ Then, just give the `queryBuilder` to the parameter of `within` method.
 ```dart
 // Streamed document snapshots of geo query under given conditions.
 final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
-    GeoCollectionRef<Map<String, dynamic>>(typedCollectionReference).within(
+    GeoCollectionReference<Map<String, dynamic>>(typedCollectionReference).within(
   center: center,
   radiusInKm: radiusInKm,
   field: field,

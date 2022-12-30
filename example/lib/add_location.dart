@@ -93,7 +93,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       throw Exception('Enter valid values as latitude and longitude.');
     }
     final geoFirePoint = GeoFirePoint(latitude, longitude);
-    await GeoCollectionRef<Map<String, dynamic>>(
+    await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection('locations'),
     ).add(<String, dynamic>{
       'geo': geoFirePoint.data,
