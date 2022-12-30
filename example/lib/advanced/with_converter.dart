@@ -52,12 +52,14 @@ class WithConverterExampleState extends State<WithConverterExample> {
           if (location == null) {
             continue;
           }
+          final name = location.name;
           final geoPoint = location.geo.geopoint;
           markers.add(
             Marker(
               markerId:
                   MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
               position: LatLng(geoPoint.latitude, geoPoint.longitude),
+              infoWindow: InfoWindow(title: name),
             ),
           );
         }
