@@ -95,23 +95,66 @@ class GeoCollectionReference<T> {
     Query<T>? Function(Query<T> query)? queryBuilder,
     bool strictMode = false,
   }) {
+    final collectionStreams = _collectionStreams(
+      center: center,
+      radiusInKm: radiusInKm,
+      field: field,
+      queryBuilder: queryBuilder,
+    );
+
+    final mergedCollectionStreams = _mergeCollectionStreams(collectionStreams);
+
+    final filteredGeoDocumentSnapshots =
+        mergedCollectionStreams.map((queryDocumentSnapshots) {
+      final geoDocumentSnapshots = queryDocumentSnapshots
+          .map(
+            (queryDocumentSnapshot) =>
+                _nullableGeoDocumentSnapshotFromQueryDocumentSnapshot(
+              queryDocumentSnapshot: queryDocumentSnapshot,
+              geopointFrom: geopointFrom,
+              center: center,
+            ),
+          )
+          // Removes null values.
+          .whereType<GeoDocumentSnapshot<T>>();
+
+      // Filter fetched geoDocumentSnapshots by distance from center point on
+      // client side if strict mode.
+      final filteredList = geoDocumentSnapshots.where(
+        (geoDocumentSnapshot) =>
+            !strictMode ||
+            geoDocumentSnapshot.distanceFromCenterInKm <=
+                radiusInKm * _detectionRangeBuffer,
+      );
+
+      // Returns sorted list by distance from center point.
+      return filteredList.toList()
+        ..sort(
+          (a, b) =>
+              (a.distanceFromCenterInKm * 1000).toInt() -
+              (b.distanceFromCenterInKm * 1000).toInt(),
+        );
+    });
+    return filteredGeoDocumentSnapshots.asBroadcastStream();
+  }
+
+  /// Returns stream of [QueryDocumentSnapshot]s of neighbor and center
+  /// Geohashes.
+  List<Stream<List<QueryDocumentSnapshot<T>>>> _collectionStreams({
+    required double radiusInKm,
+    required GeoFirePoint center,
+    required String field,
+    Query<T>? Function(Query<T> query)? queryBuilder,
+  }) {
     final precisionDigits = geohashDigitsFromRadius(radiusInKm);
     final centerGeohash = center.geohash.substring(0, precisionDigits);
     final geohashes = [
       ...neighborGeohashesOf(geohash: centerGeohash),
       centerGeohash,
     ];
-
-    // Add query conditions, if queryBuilder parameter is given.
-    Query<T> query = _collectionReference;
-    if (queryBuilder != null) {
-      query = queryBuilder(query)!;
-    }
-
-    // Stream of document snapshots of neighbor and center Geohashes.
-    final collectionStreams = geohashes
+    return geohashes
         .map(
-          (geohash) => query
+          (geohash) => _query(queryBuilder)
               .orderBy('$field.geohash')
               .startAt([geohash])
               .endAt(['$geohash~'])
@@ -119,51 +162,68 @@ class GeoCollectionReference<T> {
               .map((querySnapshot) => querySnapshot.docs),
         )
         .toList();
+  }
 
-    final mergedCollectionStreams = Rx.combineLatest<
-        List<QueryDocumentSnapshot<T>>, List<QueryDocumentSnapshot<T>>>(
-      collectionStreams,
-      (values) => [
-        for (final queryDocumentSnapshots in values) ...queryDocumentSnapshots,
-      ],
+  /// Add query conditions, if queryBuilder parameter is given.
+  Query<T> _query(Query<T>? Function(Query<T> query)? queryBuilder) {
+    Query<T> query = _collectionReference;
+    if (queryBuilder != null) {
+      query = queryBuilder(query)!;
+    }
+    return query;
+  }
+
+  /// Merge given list of collection stream by `Rx.combineLatest`.
+  ///
+  /// Note:
+  ///
+  /// ```dart
+  /// final stream1 = Stream.value([1, 2, 3]);
+  /// final stream2 = Stream.value([11, 12, 13]);
+  /// final streams = [stream1, stream2];
+  ///
+  /// Rx.combineLatest<List<int>, List<int>>(
+  ///   streams,
+  ///   (values) => [
+  ///     for (final numbers in values) ...numbers,
+  ///   ],
+  /// ).listen(print);
+  ///
+  /// // [1, 2, 3, 11, 12, 13]
+  /// ```
+  Stream<List<QueryDocumentSnapshot<T>>> _mergeCollectionStreams(
+    List<Stream<List<QueryDocumentSnapshot<T>>>> collectionStreams,
+  ) =>
+      Rx.combineLatest<List<QueryDocumentSnapshot<T>>,
+          List<QueryDocumentSnapshot<T>>>(
+        collectionStreams,
+        (values) => [
+          for (final queryDocumentSnapshots in values)
+            ...queryDocumentSnapshots,
+        ],
+      );
+
+  /// Returns nullable [GeoDocumentSnapshot] from given [QueryDocumentSnapshot].
+  GeoDocumentSnapshot<T>?
+      _nullableGeoDocumentSnapshotFromQueryDocumentSnapshot({
+    required QueryDocumentSnapshot<T> queryDocumentSnapshot,
+    required GeoPoint Function(T obj) geopointFrom,
+    required GeoFirePoint center,
+  }) {
+    final exists = queryDocumentSnapshot.exists;
+    if (!exists) {
+      return null;
+    }
+    final fetchedData = queryDocumentSnapshot.data();
+    final fetchedGeopoint = geopointFrom(fetchedData);
+    final distanceFromCenterInKm = center.distanceBetweenInKm(
+      latitude: fetchedGeopoint.latitude,
+      longitude: fetchedGeopoint.longitude,
     );
-
-    final filtered = mergedCollectionStreams.map((queryDocumentSnapshots) {
-      final mappedList = queryDocumentSnapshots.map((queryDocumentSnapshot) {
-        final exists = queryDocumentSnapshot.exists;
-        if (!exists) {
-          return null;
-        }
-        final fetchedData = queryDocumentSnapshot.data();
-        final fetchedGeopoint = geopointFrom(fetchedData);
-        final distanceFromCenterInKm = center.distanceBetweenInKm(
-          latitude: fetchedGeopoint.latitude,
-          longitude: fetchedGeopoint.longitude,
-        );
-        return GeoDocumentSnapshot(
-          documentSnapshot: queryDocumentSnapshot,
-          distanceFromCenterInKm: distanceFromCenterInKm,
-        );
-      });
-
-      final nullableFilteredList = strictMode
-          ? mappedList.where(
-              (doc) =>
-                  doc != null &&
-                  doc.distanceFromCenterInKm <=
-                      radiusInKm * _detectionRangeBuffer,
-            )
-          : mappedList;
-
-      // Removes null values by `whereType<GeoDocumentSnapshot<T>>`.
-      return nullableFilteredList.whereType<GeoDocumentSnapshot<T>>().toList()
-        ..sort(
-          (a, b) =>
-              (a.distanceFromCenterInKm * 1000).toInt() -
-              (b.distanceFromCenterInKm * 1000).toInt(),
-        );
-    });
-    return filtered.asBroadcastStream();
+    return GeoDocumentSnapshot(
+      documentSnapshot: queryDocumentSnapshot,
+      distanceFromCenterInKm: distanceFromCenterInKm,
+    );
   }
 }
 
