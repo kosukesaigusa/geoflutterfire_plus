@@ -53,13 +53,14 @@ FirebaseFirestore.instance.collection('locations').add(
   <String, dynamic>{
     'geo': data,
     'name': 'Tokyo Station',
+    'isVisible': true,
   },
 );
 ```
 
 The created document would be like the screenshot below. Geohash string (`geohash`) and Cloud Firestore GeoPoint data (`geopoint`) is saved in `geo` field as map type.
 
-![Cloud Firestore](https://user-images.githubusercontent.com/13669049/210041865-43914691-ef00-4946-9c3f-38780b5b9f7a.png)
+![Cloud Firestore](https://user-images.githubusercontent.com/13669049/210048071-e437839c-f1da-4307-b5ad-63aeba2b30e9.png)
 
 ## Query geo data
 
@@ -101,11 +102,13 @@ class Location {
   Location({
     required this.geo,
     required this.name,
+    required this.isVisible,
   });
 
   factory Location.fromJson(Map<String, dynamic> json) => Location(
         geo: Geo.fromJson(json['geo'] as Map<String, dynamic>),
         name: json['name'] as String,
+        isVisible: (json['isVisible'] ?? false) as bool,
       );
 
   factory Location.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) =>
@@ -113,10 +116,12 @@ class Location {
 
   final Geo geo;
   final String name;
+  final bool isVisible;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'geo': geo.toJson(),
         'name': name,
+        'isVisible': isVisible,
       };
 }
 
@@ -153,7 +158,7 @@ final typedCollectionReference =
         );
 ```
 
-You can write query in the same way as not type-safe one.
+You can write query in the same way as the first example.
 
 ```dart
 // Center of the geo query.
@@ -169,11 +174,37 @@ const String field = 'geo';
 GeoPoint geopointFrom: (Location location) => location.geo.geopoint;
 
 // Streamed document snapshots of geo query under given conditions.
+final Stream<List<DocumentSnapshot<Location>>> stream =
+    GeoCollectionRef<Location>(typedCollectionReference).within(
+  center: center,
+  radiusInKm: radiusInKm,
+  field: field,
+  geopointFrom: geopointFrom,
+);
+```
+
+If you would like to add custom query conditions, `queryBuilder` parameter of `within` method is available.
+
+For example, when you filter only `isVisible` field is `true` documents, your `queryBuilder` would be like this:
+
+```dart
+// Custom query condition.
+Query<Location> queryBuilder(Query<Location> query) =>
+    query.where('isVisible', isNotEqualTo: true);
+```
+
+Then, just give the `queryBuilder` to the parameter of `within` method.
+
+🚨 Note: Custom query condition may require a composite index. If the index is not created, you will see the "[cloud_firestore/failed-precondition] The query requires an index..." error from Firestore on the debug console. You can create the index by clicking the link in the error message.
+
+```dart
+// Streamed document snapshots of geo query under given conditions.
 final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
     GeoCollectionRef<Map<String, dynamic>>(typedCollectionReference).within(
   center: center,
   radiusInKm: radiusInKm,
   field: field,
   geopointFrom: geopointFrom,
+  queryBuilder: queryBuilder,
 );
 ```
