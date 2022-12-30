@@ -98,6 +98,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
         .add(<String, dynamic>{
       'geo': geoFirePoint.data,
       'name': name,
+      'isVisible': true,
     });
     debugPrint('🌍 Location data is successfully added: '
         'name: $name'
