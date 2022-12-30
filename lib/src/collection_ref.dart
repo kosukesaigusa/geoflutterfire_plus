@@ -108,6 +108,7 @@ class GeoCollectionRef<T> {
       query = queryBuilder(query)!;
     }
 
+    // Stream of document snapshots of neighbor and center Geohashes.
     final collectionStreams = geohashes
         .map(
           (geohash) => query
@@ -139,12 +140,11 @@ class GeoCollectionRef<T> {
           latitude: fetchedGeopoint.latitude,
           longitude: fetchedGeopoint.longitude,
         );
-
         return GeoDocumentSnapshot(
           documentSnapshot: queryDocumentSnapshot,
           distanceFromCenterInKm: distanceFromCenterInKm,
         );
-      }).toList();
+      });
 
       final nullableFilteredList = strictMode
           ? mappedList.where(
@@ -154,6 +154,8 @@ class GeoCollectionRef<T> {
                       radiusInKm * _detectionRangeBuffer,
             )
           : mappedList;
+
+      // Removes null values by `whereType<GeoDocumentSnapshot<T>>`.
       return nullableFilteredList.whereType<GeoDocumentSnapshot<T>>().toList()
         ..sort(
           (a, b) =>
