@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'add_location.dart';
 import 'firebase_options.dart';
+import 'with_converter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +30,9 @@ class App extends StatelessWidget {
           overlayShape: SliderComponentShape.noOverlay,
         ),
       ),
-      home: const MapPage(),
+      // home: const Example(),
+      // See using with converter example by removing comment below:
+      home: const WithConverterExample(),
     );
   }
 }
@@ -42,15 +46,15 @@ const tokyoStation = LatLng(35.681236, 139.767125);
 /// `withConverter` is available to type-safely define [CollectionReference].
 final collectionReference = FirebaseFirestore.instance.collection('locations');
 
-class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+class Example extends StatefulWidget {
+  const Example({super.key});
 
   @override
-  MapPageState createState() => MapPageState();
+  ExampleState createState() => ExampleState();
 }
 
 /// Example page using [GoogleMap].
-class MapPageState extends State<MapPage> {
+class ExampleState extends State<Example> {
   /// Camera position on Google Maps.
   /// Used as center point when running geo query.
   CameraPosition _cameraPosition = _initialCameraPosition;
@@ -76,9 +80,9 @@ class MapPageState extends State<MapPage> {
               .within(
             center: GeoFirePoint(latitude, longitude),
             radiusInKm: radiusInKm,
-            field: 'location',
-            geopointFrom: (data) => (data['location']
-                as Map<String, dynamic>)['geopoint'] as GeoPoint,
+            field: 'geo',
+            geopointFrom: (data) =>
+                (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint,
             strictMode: true,
           )
               .listen((documentSnapshots) {
@@ -88,13 +92,15 @@ class MapPageState extends State<MapPage> {
               if (data == null) {
                 continue;
               }
-              final geoPoint = (data['location']
-                  as Map<String, dynamic>)['geopoint'] as GeoPoint;
+              final name = data['name'] as String;
+              final geoPoint =
+                  (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint;
               markers.add(
                 Marker(
                   markerId:
                       MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
                   position: LatLng(geoPoint.latitude, geoPoint.longitude),
+                  infoWindow: InfoWindow(title: name),
                 ),
               );
             }
@@ -225,104 +231,12 @@ class MapPageState extends State<MapPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showModalBottomSheet<void>(
+        onPressed: () => showDialog<void>(
           context: context,
-          builder: (context) => const _AddLocationModalBottomSheet(),
+          builder: (context) => const AddLocationDialog(),
         ),
         child: const Icon(Icons.add),
       ),
     );
-  }
-}
-
-/// ModalBottomSheet widget to add location data to Cloud Firestore.
-class _AddLocationModalBottomSheet extends StatefulWidget {
-  const _AddLocationModalBottomSheet();
-
-  @override
-  _AddLocationModalBottomSheetState createState() =>
-      _AddLocationModalBottomSheetState();
-}
-
-class _AddLocationModalBottomSheetState
-    extends State<_AddLocationModalBottomSheet> {
-  final _latitudeEditingController = TextEditingController();
-  final _longitudeEditingController = TextEditingController();
-
-  @override
-  void dispose() {
-    _latitudeEditingController.dispose();
-    _longitudeEditingController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: 32,
-        bottom: 60,
-        right: 16,
-        left: 16,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _latitudeEditingController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              label: const Text('latitude'),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _longitudeEditingController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              label: const Text('latitude'),
-            ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              try {
-                await _addLocation();
-              } on Exception catch (e) {
-                debugPrint('🚨 An exception occurred when adding location data'
-                    '${e.toString()}');
-              }
-              navigator.pop();
-            },
-            child: const Text('Add location data'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Add location data to Cloud Firestore.
-  Future<void> _addLocation() async {
-    final latitude = double.tryParse(_latitudeEditingController.value.text);
-    final longitude = double.tryParse(_longitudeEditingController.value.text);
-    if (latitude == null || longitude == null) {
-      throw Exception('Enter valid values as latitude and longitude.');
-    }
-    final geoFirePoint = GeoFirePoint(latitude, longitude);
-    await collectionReference.add(<String, dynamic>{
-      'location': geoFirePoint.data,
-    });
-    debugPrint('🌍 Location data is successfully added: '
-        'lat: $latitude, '
-        'lng: $longitude, '
-        'geohash: ${geoFirePoint.geohash}');
   }
 }
