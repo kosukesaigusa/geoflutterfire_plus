@@ -1,4 +1,4 @@
-# geoflutterfire_plus
+# geoflutterfire_plus 🌍
 
 geoflutterfire_plus allows your flutter apps to query geographic data saved in Cloud Firestore.
 
@@ -45,7 +45,20 @@ final Map<String, dynamic> data = geoFirePoint.data;
 print(data);
 ```
 
-And you can just call `add` or `set` method of `cloud_firestore` to save the data. For example,
+`GeoCollectionRef` instance provides `add` method to create a new document in the collection (internally, just calling `add` method of `cloud_firestore`).
+
+```dart
+// Add new documents to locations collection.
+GeoCollectionRef<Map<String, dynamic>>(
+  FirebaseFirestore.instance.collection('locations'),
+).add(<String, dynamic>{
+  'geo': geoFirePoint.data,
+  'name': name,
+  'isVisible': true,
+});
+```
+
+Or, you can just call `add` or `set` method of `cloud_firestore` to save the data. For example,
 
 ```dart
 // Add new documents to locations collection.
@@ -61,6 +74,19 @@ FirebaseFirestore.instance.collection('locations').add(
 The created document would be like the screenshot below. Geohash string (`geohash`) and Cloud Firestore GeoPoint data (`geopoint`) is saved in `geo` field as map type.
 
 ![Cloud Firestore](https://user-images.githubusercontent.com/13669049/210048071-e437839c-f1da-4307-b5ad-63aeba2b30e9.png)
+
+In order to set or update the pair of latitude and longitude as `cloud_firestore` GeoPoint and Geohash string on the specified document's given field, `GeoCollectionRef.setPoint` is available.
+
+```dart
+// Set or update geo field on the specified document.
+GeoCollectionRef(FirebaseFirestore.instance.collection('locations'))
+    .setPoint(
+  id: 'your-document-id',
+  field: 'geo',
+  latitude: 35.681236,
+  longitude: 139.767125,
+);
+```
 
 ## Query geo data
 
