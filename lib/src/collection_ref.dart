@@ -96,10 +96,10 @@ class GeoCollectionRef<T> {
     bool strictMode = false,
   }) {
     final precisionDigits = geohashDigitsFromRadius(radiusInKm);
-    final centerGeoHash = center.geohash.substring(0, precisionDigits);
+    final centerGeohash = center.geohash.substring(0, precisionDigits);
     final geohashes = [
-      ...neighborGeohashesOf(geohash: centerGeoHash),
-      centerGeoHash,
+      ...neighborGeohashesOf(geohash: centerGeohash),
+      centerGeohash,
     ];
 
     // Add query conditions, if queryBuilder parameter is given.
