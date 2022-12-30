@@ -77,7 +77,7 @@ class ExampleState extends State<Example> {
     required double longitude,
     required double radiusInKm,
   }) =>
-          GeoCollectionRef(collectionReference)
+          GeoCollectionReference(collectionReference)
               .within(
             center: GeoFirePoint(latitude, longitude),
             radiusInKm: radiusInKm,

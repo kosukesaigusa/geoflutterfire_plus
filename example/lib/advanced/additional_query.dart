@@ -37,7 +37,7 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
     required double longitude,
     required double radiusInKm,
   }) =>
-      GeoCollectionRef(typedCollectionReference)
+      GeoCollectionReference(typedCollectionReference)
           .within(
         center: GeoFirePoint(latitude, longitude),
         radiusInKm: radiusInKm,
