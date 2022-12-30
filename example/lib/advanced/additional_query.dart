@@ -1,61 +1,23 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'add_location.dart';
-import 'firebase_options.dart';
+import '../add_location.dart';
+import 'entity.dart';
+import 'utils.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const App());
-}
-
-class App extends StatelessWidget {
-  const App({super.key});
+class AdditionalQueryExample extends StatefulWidget {
+  const AdditionalQueryExample({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        sliderTheme: SliderThemeData(
-          overlayShape: SliderComponentShape.noOverlay,
-        ),
-      ),
-      home: const Example(),
-      // See using with converter example by removing comment below:
-      // home: const WithConverterExample(),
-      // See adding custom queries example by removing comment below:
-      // home: const AdditionalQueryExample(),
-    );
-  }
-}
-
-/// Tokyo Station location for demo.
-/// You can get latitude and longitude from this site:
-/// https://www.geocoding.jp/
-const tokyoStation = LatLng(35.681236, 139.767125);
-
-/// Reference to the collection where the location data is stored.
-/// `withConverter` is available to type-safely define [CollectionReference].
-final collectionReference = FirebaseFirestore.instance.collection('locations');
-
-class Example extends StatefulWidget {
-  const Example({super.key});
-
-  @override
-  ExampleState createState() => ExampleState();
+  AdditionalQueryExampleState createState() => AdditionalQueryExampleState();
 }
 
 /// Example page using [GoogleMap].
-class ExampleState extends State<Example> {
+class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
   /// Camera position on Google Maps.
   /// Used as center point when running geo query.
   CameraPosition _cameraPosition = _initialCameraPosition;
@@ -67,49 +29,44 @@ class ExampleState extends State<Example> {
   Set<Marker> _markers = {};
 
   /// Geo query [StreamSubscription].
-  late StreamSubscription<List<DocumentSnapshot<Map<String, dynamic>>>>
-      _subscription;
+  late StreamSubscription<List<DocumentSnapshot<Location>>> _subscription;
 
   /// Returns geo query [StreamSubscription] with listener.
-  StreamSubscription<List<DocumentSnapshot<Map<String, dynamic>>>>
-      _geoQuerySubscription({
+  StreamSubscription<List<DocumentSnapshot<Location>>> _geoQuerySubscription({
     required double latitude,
     required double longitude,
     required double radiusInKm,
   }) =>
-          GeoCollectionRef(collectionReference)
-              .within(
-            center: GeoFirePoint(latitude, longitude),
-            radiusInKm: radiusInKm,
-            field: 'geo',
-            geopointFrom: (data) =>
-                (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint,
-            strictMode: true,
-          )
-              .listen((documentSnapshots) {
-            final markers = <Marker>{};
-            for (final ds in documentSnapshots) {
-              final data = ds.data();
-              if (data == null) {
-                continue;
-              }
-              final name = data['name'] as String;
-              final geoPoint =
-                  (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint;
-              markers.add(
-                Marker(
-                  markerId:
-                      MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
-                  position: LatLng(geoPoint.latitude, geoPoint.longitude),
-                  infoWindow: InfoWindow(title: name),
-                ),
-              );
-            }
-            debugPrint('📍 markers (${markers.length}): $markers');
-            setState(() {
-              _markers = markers;
-            });
-          });
+      GeoCollectionRef(typedCollectionReference)
+          .within(
+        center: GeoFirePoint(latitude, longitude),
+        radiusInKm: radiusInKm,
+        field: 'geo',
+        geopointFrom: (location) => location.geo.geopoint,
+        queryBuilder: (query) => query.where('isVisible', isEqualTo: true),
+        strictMode: true,
+      )
+          .listen((documentSnapshots) {
+        final markers = <Marker>{};
+        for (final ds in documentSnapshots) {
+          final location = ds.data();
+          if (location == null) {
+            continue;
+          }
+          final geoPoint = location.geo.geopoint;
+          markers.add(
+            Marker(
+              markerId:
+                  MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
+              position: LatLng(geoPoint.latitude, geoPoint.longitude),
+            ),
+          );
+        }
+        debugPrint('📍 markers (${markers.length}): $markers');
+        setState(() {
+          _markers = markers;
+        });
+      });
 
   /// Initial geo query detection radius in km.
   static const double _initialRadiusInKm = 1;
@@ -232,7 +189,7 @@ class ExampleState extends State<Example> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog<void>(
+        onPressed: () => showModalBottomSheet<void>(
           context: context,
           builder: (context) => const AddLocationDialog(),
         ),

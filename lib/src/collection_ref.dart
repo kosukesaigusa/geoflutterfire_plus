@@ -44,12 +44,15 @@ class GeoCollectionRef<T> {
         SetOptions(merge: true),
       );
 
-  /// Notifies of geo query results by given condition.
+  /// Notifies of geo query results by given conditions.
   ///
   /// * [center] Center point of detection.
   /// * [radiusInKm] Detection range in kilometers.
   /// * [field] Field name of cloud_firestore document.
-  /// * [geopointFrom]
+  /// * [geopointFrom] Function to get cloud_firestore [GeoPoint] instance from
+  /// the object (type T).
+  /// * [queryBuilder] Specifies query if you would like to give additional
+  /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
   Stream<List<DocumentSnapshot<T>>> within({
@@ -57,6 +60,7 @@ class GeoCollectionRef<T> {
     required double radiusInKm,
     required String field,
     required GeoPoint Function(T obj) geopointFrom,
+    Query<T>? Function(Query<T> query)? queryBuilder,
     bool strictMode = false,
   }) =>
       withinWithDistance(
@@ -64,19 +68,23 @@ class GeoCollectionRef<T> {
         radiusInKm: radiusInKm,
         field: field,
         geopointFrom: geopointFrom,
+        queryBuilder: queryBuilder,
         strictMode: strictMode,
       ).map(
         (snapshots) =>
             snapshots.map((snapshot) => snapshot.documentSnapshot).toList(),
       );
 
-  /// Notifies of geo query results with distance from center in kilometers by
-  /// given condition.
+  /// Notifies of geo query results with distance from center in kilometers
+  /// ([GeoDocumentSnapshot]) by given conditions.
   ///
   /// * [center] Center point of detection.
   /// * [radiusInKm] Detection range in kilometers.
   /// * [field] Field name of cloud_firestore document.
-  /// * [geopointFrom]
+  /// * [geopointFrom] Function to get cloud_firestore [GeoPoint] instance from
+  /// the object (type T).
+  /// * [queryBuilder] Specifies query if you would like to give additional
+  /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
   Stream<List<GeoDocumentSnapshot<T>>> withinWithDistance({
@@ -84,6 +92,7 @@ class GeoCollectionRef<T> {
     required double radiusInKm,
     required String field,
     required GeoPoint Function(T obj) geopointFrom,
+    Query<T>? Function(Query<T> query)? queryBuilder,
     bool strictMode = false,
   }) {
     final precisionDigits = geohashDigitsFromRadius(radiusInKm);
@@ -93,9 +102,15 @@ class GeoCollectionRef<T> {
       centerGeoHash,
     ];
 
+    // Add query conditions, if queryBuilder parameter is given.
+    Query<T> query = _collectionReference;
+    if (queryBuilder != null) {
+      query = queryBuilder(query)!;
+    }
+
     final collectionStreams = geohashes
         .map(
-          (geohash) => _collectionReference
+          (geohash) => query
               .orderBy('$field.geohash')
               .startAt([geohash])
               .endAt(['$geohash~'])

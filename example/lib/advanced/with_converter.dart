@@ -4,20 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:simple/advanced/utils.dart';
 
-import 'add_location.dart';
-
-/// Tokyo Station location for demo.
-/// You can get latitude and longitude from this site:
-/// https://www.geocoding.jp/
-const tokyoStation = LatLng(35.681236, 139.767125);
-
-/// Typed reference to the collection where the location data is stored.
-final typedCollectionReference =
-    FirebaseFirestore.instance.collection('locations').withConverter(
-          fromFirestore: (ds, _) => Location.fromDocumentSnapshot(ds),
-          toFirestore: (obj, _) => obj.toJson(),
-        );
+import '../add_location.dart';
+import 'entity.dart';
 
 class WithConverterExample extends StatefulWidget {
   const WithConverterExample({super.key});
@@ -206,49 +196,4 @@ class WithConverterExampleState extends State<WithConverterExample> {
       ),
     );
   }
-}
-
-/// An entity of Cloud Firestore location document.
-class Location {
-  Location({
-    required this.geo,
-    required this.name,
-  });
-
-  factory Location.fromJson(Map<String, dynamic> json) => Location(
-        geo: Geo.fromJson(json['geo'] as Map<String, dynamic>),
-        name: json['name'] as String,
-      );
-
-  factory Location.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) =>
-      Location.fromJson(documentSnapshot.data()! as Map<String, dynamic>);
-
-  final Geo geo;
-  final String name;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'geo': geo.toJson(),
-        'name': name,
-      };
-}
-
-/// An entity of `geo` field of Cloud Firestore location document.
-class Geo {
-  Geo({
-    required this.geohash,
-    required this.geopoint,
-  });
-
-  factory Geo.fromJson(Map<String, dynamic> json) => Geo(
-        geohash: json['geohash'] as String,
-        geopoint: json['geopoint'] as GeoPoint,
-      );
-
-  final String geohash;
-  final GeoPoint geopoint;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'geohash': geohash,
-        'geopoint': geopoint,
-      };
 }
