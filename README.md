@@ -66,6 +66,8 @@ The created document would be like the screenshot below. Geohash string (`geohas
 
 In order to query location documents within a 50km radius of Tokyo station, you will write query like the following:
 
+### Basic query
+
 ```dart
 // Center of the geo query.
 final GeoFirePoint center = GeoFirePoint(35.681236, 139.767125);
@@ -75,15 +77,19 @@ const double radiusInKm = 50;
 
 // Field name of Cloud Firestore documents where the geohash is saved.
 const String field = 'geo';
+```
 
-// Function to get GeoPoint instance from Cloud Firestore document data.
-GeoPoint geopointFrom(Map<String, dynamic> data) =>
-     (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint;
-
+```dart
 // Reference to locations collection.
 final CollectionReference<Map<String, dynamic>> collectionReference =
     FirebaseFirestore.instance.collection('locations');
 
+// Function to get GeoPoint instance from Cloud Firestore document data.
+GeoPoint geopointFrom(Map<String, dynamic> data) =>
+     (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint;
+```
+
+```dart
 // Streamed document snapshots of geo query under given conditions.
 final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
     GeoCollectionRef<Map<String, dynamic>>(collectionReference).within(
@@ -93,6 +99,8 @@ final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
   geopointFrom: geopointFrom,
 );
 ```
+
+### Using `withConverter`
 
 If you would like to use `withConverter` to type-safely write query, first, you need to define its entity class and factory constructors.
 
@@ -156,23 +164,14 @@ final typedCollectionReference =
           fromFirestore: (ds, _) => Location.fromDocumentSnapshot(ds),
           toFirestore: (obj, _) => obj.toJson(),
         );
+
+// Function to get GeoPoint instance from Location instance.
+GeoPoint geopointFrom: (Location location) => location.geo.geopoint;
 ```
 
 You can write query in the same way as the first example.
 
 ```dart
-// Center of the geo query.
-final GeoFirePoint center = GeoFirePoint(35.681236, 139.767125);
-
-// Detection range from the center point.
-const double radiusInKm = 50;
-
-// Field name of Cloud Firestore documents where the geohash is saved.
-const String field = 'geo';
-
-// Function to get GeoPoint instance from Location instance.
-GeoPoint geopointFrom: (Location location) => location.geo.geopoint;
-
 // Streamed document snapshots of geo query under given conditions.
 final Stream<List<DocumentSnapshot<Location>>> stream =
     GeoCollectionRef<Location>(typedCollectionReference).within(
@@ -182,6 +181,8 @@ final Stream<List<DocumentSnapshot<Location>>> stream =
   geopointFrom: geopointFrom,
 );
 ```
+
+### Custom query conditions
 
 If you would like to add custom query conditions, `queryBuilder` parameter of `within` method is available.
 
