@@ -1,60 +1,33 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'add_location.dart';
-import 'firebase_options.dart';
-import 'with_converter.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const App());
-}
-
-class App extends StatelessWidget {
-  const App({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        sliderTheme: SliderThemeData(
-          overlayShape: SliderComponentShape.noOverlay,
-        ),
-      ),
-      // home: const Example(),
-      // See using with converter example by removing comment below:
-      home: const WithConverterExample(),
-    );
-  }
-}
 
 /// Tokyo Station location for demo.
 /// You can get latitude and longitude from this site:
 /// https://www.geocoding.jp/
 const tokyoStation = LatLng(35.681236, 139.767125);
 
-/// Reference to the collection where the location data is stored.
-/// `withConverter` is available to type-safely define [CollectionReference].
-final collectionReference = FirebaseFirestore.instance.collection('locations');
+/// Typed reference to the collection where the location data is stored.
+final typedCollectionReference =
+    FirebaseFirestore.instance.collection('locations').withConverter(
+          fromFirestore: (ds, _) => Location.fromDocumentSnapshot(ds),
+          toFirestore: (obj, _) => obj.toJson(),
+        );
 
-class Example extends StatefulWidget {
-  const Example({super.key});
+class WithConverterExample extends StatefulWidget {
+  const WithConverterExample({super.key});
 
   @override
-  ExampleState createState() => ExampleState();
+  WithConverterExampleState createState() => WithConverterExampleState();
 }
 
 /// Example page using [GoogleMap].
-class ExampleState extends State<Example> {
+class WithConverterExampleState extends State<WithConverterExample> {
   /// Camera position on Google Maps.
   /// Used as center point when running geo query.
   CameraPosition _cameraPosition = _initialCameraPosition;
@@ -66,49 +39,43 @@ class ExampleState extends State<Example> {
   Set<Marker> _markers = {};
 
   /// Geo query [StreamSubscription].
-  late StreamSubscription<List<DocumentSnapshot<Map<String, dynamic>>>>
-      _subscription;
+  late StreamSubscription<List<DocumentSnapshot<Location>>> _subscription;
 
   /// Returns geo query [StreamSubscription] with listener.
-  StreamSubscription<List<DocumentSnapshot<Map<String, dynamic>>>>
-      _geoQuerySubscription({
+  StreamSubscription<List<DocumentSnapshot<Location>>> _geoQuerySubscription({
     required double latitude,
     required double longitude,
     required double radiusInKm,
   }) =>
-          GeoCollectionRef(collectionReference)
-              .within(
-            center: GeoFirePoint(latitude, longitude),
-            radiusInKm: radiusInKm,
-            field: 'geo',
-            geopointFrom: (data) =>
-                (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint,
-            strictMode: true,
-          )
-              .listen((documentSnapshots) {
-            final markers = <Marker>{};
-            for (final ds in documentSnapshots) {
-              final data = ds.data();
-              if (data == null) {
-                continue;
-              }
-              final name = data['name'] as String;
-              final geoPoint =
-                  (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint;
-              markers.add(
-                Marker(
-                  markerId:
-                      MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
-                  position: LatLng(geoPoint.latitude, geoPoint.longitude),
-                  infoWindow: InfoWindow(title: name),
-                ),
-              );
-            }
-            debugPrint('📍 markers (${markers.length}): $markers');
-            setState(() {
-              _markers = markers;
-            });
-          });
+      GeoCollectionRef(typedCollectionReference)
+          .within(
+        center: GeoFirePoint(latitude, longitude),
+        radiusInKm: radiusInKm,
+        field: 'geo',
+        geopointFrom: (location) => location.geo.geopoint,
+        strictMode: true,
+      )
+          .listen((documentSnapshots) {
+        final markers = <Marker>{};
+        for (final ds in documentSnapshots) {
+          final location = ds.data();
+          if (location == null) {
+            continue;
+          }
+          final geoPoint = location.geo.geopoint;
+          markers.add(
+            Marker(
+              markerId:
+                  MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
+              position: LatLng(geoPoint.latitude, geoPoint.longitude),
+            ),
+          );
+        }
+        debugPrint('📍 markers (${markers.length}): $markers');
+        setState(() {
+          _markers = markers;
+        });
+      });
 
   /// Initial geo query detection radius in km.
   static const double _initialRadiusInKm = 1;
@@ -231,7 +198,7 @@ class ExampleState extends State<Example> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog<void>(
+        onPressed: () => showModalBottomSheet<void>(
           context: context,
           builder: (context) => const AddLocationDialog(),
         ),
@@ -239,4 +206,49 @@ class ExampleState extends State<Example> {
       ),
     );
   }
+}
+
+/// An entity of Cloud Firestore location document.
+class Location {
+  Location({
+    required this.geo,
+    required this.name,
+  });
+
+  factory Location.fromJson(Map<String, dynamic> json) => Location(
+        geo: Geo.fromJson(json['geo'] as Map<String, dynamic>),
+        name: json['name'] as String,
+      );
+
+  factory Location.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) =>
+      Location.fromJson(documentSnapshot.data()! as Map<String, dynamic>);
+
+  final Geo geo;
+  final String name;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'geo': geo.toJson(),
+        'name': name,
+      };
+}
+
+/// An entity of `geo` field of Cloud Firestore location document.
+class Geo {
+  Geo({
+    required this.geohash,
+    required this.geopoint,
+  });
+
+  factory Geo.fromJson(Map<String, dynamic> json) => Geo(
+        geohash: json['geohash'] as String,
+        geopoint: json['geopoint'] as GeoPoint,
+      );
+
+  final String geohash;
+  final GeoPoint geopoint;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'geohash': geohash,
+        'geopoint': geopoint,
+      };
 }
