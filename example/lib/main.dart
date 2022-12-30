@@ -177,7 +177,7 @@ class ExampleState extends State<Example> {
               alignment: Alignment.topCenter,
               child: Container(
                 width: double.infinity,
-                margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                margin: const EdgeInsets.only(top: 64, left: 16, right: 16),
                 padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
                   color: Colors.black38,

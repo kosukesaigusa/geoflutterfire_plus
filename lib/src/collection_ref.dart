@@ -29,8 +29,8 @@ class GeoCollectionRef<T> {
   /// Deletes the document from the collection.
   Future<void> delete(String id) => _collectionReference.doc(id).delete();
 
-  /// Sets/Updates the pair of ([latitude], [longitude]) as cloud_firestore [GeoPoint]
-  /// and geohash string on the document's given [field].
+  /// Sets or updates the pair of ([latitude], [longitude]) as cloud_firestore
+  /// [GeoPoint] and geohash string on the document's given [field].
   Future<void> setPoint({
     required String id,
     required String field,
