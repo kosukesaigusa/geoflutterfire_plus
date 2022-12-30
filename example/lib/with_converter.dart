@@ -12,7 +12,7 @@ import 'add_location.dart';
 /// https://www.geocoding.jp/
 const tokyoStation = LatLng(35.681236, 139.767125);
 
-/// Reference to the collection where the location data is stored.
+/// Typed reference to the collection where the location data is stored.
 final typedCollectionReference =
     FirebaseFirestore.instance.collection('locations').withConverter(
           fromFirestore: (ds, _) => Location.fromDocumentSnapshot(ds),
