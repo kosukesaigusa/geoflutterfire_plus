@@ -173,7 +173,7 @@ class GeoCollectionReference<T> {
     return query;
   }
 
-  /// Merge given list of collection stream by `Rx.combineLatest`.
+  /// Merge given list of collection streams by `Rx.combineLatest`.
   ///
   /// Note:
   ///

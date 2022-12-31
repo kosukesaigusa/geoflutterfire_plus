@@ -39,8 +39,6 @@ class App extends StatelessWidget {
 }
 
 /// Tokyo Station location for demo.
-/// You can get latitude and longitude from this site:
-/// https://www.geocoding.jp/
 const tokyoStation = LatLng(35.681236, 139.767125);
 
 /// Reference to the collection where the location data is stored.
