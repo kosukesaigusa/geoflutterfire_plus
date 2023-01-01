@@ -217,7 +217,7 @@ For example, when you filter only `isVisible` field is `true` documents, your `q
 ```dart
 // Custom query condition.
 Query<Location> queryBuilder(Query<Location> query) =>
-    query.where('isVisible', isNotEqualTo: true);
+    query.where('isVisible', isEqualTo: true);
 ```
 
 Then, just give the `queryBuilder` to the parameter of `within` method.
