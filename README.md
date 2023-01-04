@@ -198,7 +198,7 @@ GeoPoint geopointFrom: (Location location) => location.geo.geopoint;
 You can write query in the same way as the first example.
 
 ```dart
-// Streamed document snapshots of geo query under given conditions.
+// Streamed typed document snapshots of geo query under given conditions.
 final Stream<List<DocumentSnapshot<Location>>> stream =
     GeoCollectionReference<Location>(typedCollectionReference).within(
   center: center,
@@ -225,13 +225,14 @@ Then, just give the `queryBuilder` to the parameter of `within` method.
 🚨 Note: Custom query condition may require a composite index. If the index is not created, you will see the "[cloud_firestore/failed-precondition] The query requires an index..." error from Firestore on the debug console. You can create the index by clicking the link in the error message.
 
 ```dart
-// Streamed document snapshots of geo query under given conditions.
+// Streamed typed document snapshots of geo query under custom query conditions.
 final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
     GeoCollectionReference<Map<String, dynamic>>(typedCollectionReference).within(
   center: center,
   radiusInKm: radiusInKm,
   field: field,
   geopointFrom: geopointFrom,
+  // Specify queryBuilder parameter here.
   queryBuilder: queryBuilder,
 );
 ```
