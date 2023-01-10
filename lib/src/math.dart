@@ -220,15 +220,15 @@ String _encodeNeighbor({
 /// Returns geohash digits from [radius] in kilometers,
 /// which decide how precisely detect neighbors.
 ///
-/// * 1	≤ 5,000km	×	5,000km
-/// * 2	≤ 1,250km	×	625km
-/// * 3	≤ 156km	×	156km
-/// * 4	≤ 39.1km	×	19.5km
-/// * 5	≤ 4.89km	×	4.89km
-/// * 6	≤ 1.22km	×	0.61km
-/// * 7	≤ 153m	×	153m
-/// * 8	≤ 38.2m	×	19.1m
-/// * 9	≤ 4.77m	×	4.77m
+/// * 1	≤ 5,000km x 5,000km
+/// * 2	≤ 1,250km x 625km
+/// * 3	≤ 156km x 156km
+/// * 4	≤ 39.1km x 19.5km
+/// * 5	≤ 4.89km x 4.89km
+/// * 6	≤ 1.22km x 0.61km
+/// * 7	≤ 153m x 153m
+/// * 8	≤ 38.2m x 19.1m
+/// * 9	≤ 4.77m x 4.77m
 int geohashDigitsFromRadius(double radius) {
   if (radius <= 0.00477) {
     return 9;
