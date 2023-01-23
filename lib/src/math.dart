@@ -46,9 +46,9 @@ const _base32CodesMap = <String, int>{
 /// Returns geohash String from [latitude] and [longitude],
 /// whose length is equal to [geohashLength].
 String encode({
-  required double latitude,
-  required double longitude,
-  int geohashLength = 9,
+  required final double latitude,
+  required final double longitude,
+  final int geohashLength = 9,
 }) {
   final characters = <String>[];
   var bits = 0;
@@ -94,7 +94,7 @@ String encode({
 
 /// Decodes a [geohash] string into [_CoordinatesWithErrors].
 /// It includes 'latitude', 'longitude', 'latitudeError', 'longitudeError'.
-_CoordinatesWithErrors _decode(String geohash) {
+_CoordinatesWithErrors _decode(final String geohash) {
   final boundingBox = _decodedBoundingBox(geohash);
   final latitude = (boundingBox.minLatitude + boundingBox.maxLatitude) / 2;
   final longitude = (boundingBox.minLongitude + boundingBox.maxLongitude) / 2;
@@ -109,7 +109,7 @@ _CoordinatesWithErrors _decode(String geohash) {
 }
 
 /// Decodes a hashString into a bounding box that matches it.
-_DecodedBoundingBox _decodedBoundingBox(String geohash) {
+_DecodedBoundingBox _decodedBoundingBox(final String geohash) {
   var isLongitude = true;
   var maxLatitude = 90.0;
   var minLatitude = -90.0;
@@ -148,7 +148,7 @@ _DecodedBoundingBox _decodedBoundingBox(String geohash) {
 
 /// Returns all neighbors' geohash strings of given [geohash] clockwise,
 /// in the following order, north, east, south, and then west.
-List<String> neighborsOfGeohash(String geohash) {
+List<String> neighborsOfGeohash(final String geohash) {
   final coordinatesWithErrors = _decode(geohash);
   return [
     _encodeNeighbor(
@@ -204,10 +204,10 @@ List<String> neighborsOfGeohash(String geohash) {
 
 /// Returns neighbor geohash of given [coordinatesWithErrors].
 String _encodeNeighbor({
-  required _CoordinatesWithErrors coordinatesWithErrors,
-  required String geohash,
-  required double neighborLatitudeDirection,
-  required double neighborLongitudeDirection,
+  required final _CoordinatesWithErrors coordinatesWithErrors,
+  required final String geohash,
+  required final double neighborLatitudeDirection,
+  required final double neighborLongitudeDirection,
 }) =>
     encode(
       latitude: coordinatesWithErrors.latitude +
@@ -259,8 +259,8 @@ const double _earthPolarRadius = 6357852.3;
 
 /// Returns distance between [to] and [from] in kilometers.
 double distanceInKm({
-  required Coordinates from,
-  required Coordinates to,
+  required final Coordinates from,
+  required final Coordinates to,
 }) {
   const radius = (_earthEqRadius + _earthPolarRadius) / 2;
   final latDelta = _toRadians(to.latitude - from.latitude);
@@ -275,7 +275,7 @@ double distanceInKm({
   return double.parse(distance.toStringAsFixed(3));
 }
 
-double _toRadians(double num) => num * (pi / 180.0);
+double _toRadians(final double num) => num * (pi / 180.0);
 
 class _DecodedBoundingBox extends Equatable {
   const _DecodedBoundingBox({
