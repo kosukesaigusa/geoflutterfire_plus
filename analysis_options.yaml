@@ -1,1 +1,27 @@
-include: package:pedantic_mono/analysis_options.yaml
+include: all_lint_rules.yaml
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    included_file_warning: ignore
+
+linter:
+  rules:
+    discarded_futures: false
+    combinators_ordering: false
+    eol_at_end_of_file: false
+    no_leading_underscores_for_local_identifiers: false
+    one_member_abstracts: false
+    prefer_final_parameters: false
+    diagnostic_describe_all_properties: false
+    prefer_double_quotes: false
+    always_specify_types: false
+    unnecessary_final: false.
+    prefer_expression_function_bodies: false
+    always_put_required_named_parameters_first: false
+    flutter_style_todos: false
+    avoid_annotating_with_dynamic: false
+    always_use_package_imports: false
+    no_default_cases: false
