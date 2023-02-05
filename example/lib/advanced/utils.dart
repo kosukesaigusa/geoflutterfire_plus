@@ -10,5 +10,5 @@ const tokyoStation = LatLng(35.681236, 139.767125);
 final typedCollectionReference =
     FirebaseFirestore.instance.collection('locations').withConverter(
           fromFirestore: (ds, _) => Location.fromDocumentSnapshot(ds),
-          toFirestore: (obj, _) => obj.toJson(),
+          toFirestore: (Location obj, _) => obj.toJson(),
         );
