@@ -186,7 +186,7 @@ Then, define typed collection reference.
 ```dart
 /// Reference to the collection where the location data is stored.
 final typedCollectionReference =
-    FirebaseFirestore.instance.collection('locations').withConverter(
+    FirebaseFirestore.instance.collection('locations').withConverter<Location>(
           fromFirestore: (ds, _) => Location.fromDocumentSnapshot(ds),
           toFirestore: (obj, _) => obj.toJson(),
         );
