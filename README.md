@@ -118,7 +118,8 @@ GeoPoint geopointFrom(Map<String, dynamic> data) =>
 ```dart
 // Streamed document snapshots of geo query under given conditions.
 final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
-    GeoCollectionReference<Map<String, dynamic>>(collectionReference).within(
+    GeoCollectionReference<Map<String, dynamic>>(collectionReference)
+        .subscribeWithin(
   center: center,
   radiusInKm: radiusInKm,
   field: field,
@@ -200,7 +201,7 @@ You can write query in the same way as the first example.
 ```dart
 // Streamed typed document snapshots of geo query under given conditions.
 final Stream<List<DocumentSnapshot<Location>>> stream =
-    GeoCollectionReference<Location>(typedCollectionReference).within(
+    GeoCollectionReference<Location>(typedCollectionReference).subscribeWithin(
   center: center,
   radiusInKm: radiusInKm,
   field: field,
@@ -227,7 +228,8 @@ Then, just give the `queryBuilder` to the parameter of `within` method.
 ```dart
 // Streamed typed document snapshots of geo query under custom query conditions.
 final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
-    GeoCollectionReference<Map<String, dynamic>>(typedCollectionReference).within(
+    GeoCollectionReference<Map<String, dynamic>>(typedCollectionReference)
+        .subscribeWithin(
   center: center,
   radiusInKm: radiusInKm,
   field: field,
