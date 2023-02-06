@@ -38,7 +38,7 @@ class WithConverterExampleState extends State<WithConverterExample> {
     required double radiusInKm,
   }) =>
       GeoCollectionReference(typedCollectionReference)
-          .within(
+          .subscribeWithin(
         center: GeoFirePoint(latitude, longitude),
         radiusInKm: radiusInKm,
         field: 'geo',
