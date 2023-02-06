@@ -44,7 +44,7 @@ class GeoCollectionReference<T> {
         SetOptions(merge: true),
       );
 
-  /// Notifies of geo query results by given conditions.
+  /// Subscribes geo query results by given conditions.
   ///
   /// * [center] Center point of detection.
   /// * [radiusInKm] Detection range in kilometers.
@@ -55,7 +55,7 @@ class GeoCollectionReference<T> {
   /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
-  Stream<List<DocumentSnapshot<T>>> within({
+  Stream<List<DocumentSnapshot<T>>> subscribeWithin({
     required GeoFirePoint center,
     required double radiusInKm,
     required String field,
@@ -63,7 +63,7 @@ class GeoCollectionReference<T> {
     Query<T>? Function(Query<T> query)? queryBuilder,
     bool strictMode = false,
   }) =>
-      withinWithDistance(
+      subscribeWithinWithDistance(
         center: center,
         radiusInKm: radiusInKm,
         field: field,
@@ -75,7 +75,7 @@ class GeoCollectionReference<T> {
             snapshots.map((snapshot) => snapshot.documentSnapshot).toList(),
       );
 
-  /// Notifies of geo query results with distance from center in kilometers
+  /// Subscribes geo query results with distance from center in kilometers
   /// ([GeoDocumentSnapshot]) by given conditions.
   ///
   /// * [center] Center point of detection.
@@ -87,7 +87,7 @@ class GeoCollectionReference<T> {
   /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
-  Stream<List<GeoDocumentSnapshot<T>>> withinWithDistance({
+  Stream<List<GeoDocumentSnapshot<T>>> subscribeWithinWithDistance({
     required GeoFirePoint center,
     required double radiusInKm,
     required String field,
@@ -138,9 +138,51 @@ class GeoCollectionReference<T> {
     return filteredGeoDocumentSnapshots.asBroadcastStream();
   }
 
-  /// Returns of geo query results only once with distance from center in kilometers
+  /// Fetches geo query results by given conditions.
+  ///
+  /// * [center] Center point of detection.
+  /// * [radiusInKm] Detection range in kilometers.
+  /// * [field] Field name of cloud_firestore document.
+  /// * [geopointFrom] Function to get cloud_firestore [GeoPoint] instance from
+  /// the object (type T).
+  /// * [queryBuilder] Specifies query if you would like to give additional
+  /// conditions.
+  /// * [strictMode] Whether to filter documents strictly within the bound of
+  /// given radius.
+  Future<List<DocumentSnapshot<T>>> fetchWithin({
+    required GeoFirePoint center,
+    required double radiusInKm,
+    required String field,
+    required GeoPoint Function(T obj) geopointFrom,
+    Query<T>? Function(Query<T> query)? queryBuilder,
+    bool strictMode = false,
+  }) async {
+    final geoDocumentSnapshots = await fetchWithinWithDistance(
+      center: center,
+      radiusInKm: radiusInKm,
+      field: field,
+      geopointFrom: geopointFrom,
+      queryBuilder: queryBuilder,
+      strictMode: strictMode,
+    );
+    return geoDocumentSnapshots
+        .map((snapshot) => snapshot.documentSnapshot)
+        .toList();
+  }
+
+  /// Fetches geo query results with distance from center in kilometers
   /// ([GeoDocumentSnapshot]) by given conditions.
-  Future<List<GeoDocumentSnapshot<T>>> withinWithDistanceOfFuture({
+  ///
+  /// * [center] Center point of detection.
+  /// * [radiusInKm] Detection range in kilometers.
+  /// * [field] Field name of cloud_firestore document.
+  /// * [geopointFrom] Function to get cloud_firestore [GeoPoint] instance from
+  /// the object (type T).
+  /// * [queryBuilder] Specifies query if you would like to give additional
+  /// conditions.
+  /// * [strictMode] Whether to filter documents strictly within the bound of
+  /// given radius.
+  Future<List<GeoDocumentSnapshot<T>>> fetchWithinWithDistance({
     required GeoFirePoint center,
     required double radiusInKm,
     required String field,
@@ -195,13 +237,7 @@ class GeoCollectionReference<T> {
     required String field,
     Query<T>? Function(Query<T> query)? queryBuilder,
   }) {
-    final precisionDigits = geohashDigitsFromRadius(radiusInKm);
-    final centerGeohash = center.geohash.substring(0, precisionDigits);
-    final geohashes = [
-      ...neighborGeohashesOf(geohash: centerGeohash),
-      centerGeohash,
-    ];
-    return geohashes
+    return _geohashes(radiusInKm: radiusInKm, center: center)
         .map(
           (geohash) => _query(queryBuilder)
               .orderBy('$field.geohash')
@@ -221,13 +257,7 @@ class GeoCollectionReference<T> {
     required String field,
     Query<T>? Function(Query<T> query)? queryBuilder,
   }) {
-    final precisionDigits = geohashDigitsFromRadius(radiusInKm);
-    final centerGeohash = center.geohash.substring(0, precisionDigits);
-    final geohashes = [
-      ...neighborGeohashesOf(geohash: centerGeohash),
-      centerGeohash,
-    ];
-    return geohashes.map(
+    return _geohashes(radiusInKm: radiusInKm, center: center).map(
       (geohash) async {
         final querySnapshot = await _query(queryBuilder)
             .orderBy('$field.geohash')
@@ -235,6 +265,19 @@ class GeoCollectionReference<T> {
         return querySnapshot.docs;
       },
     ).toList();
+  }
+
+  /// Returns neighbor and center geohash strings.
+  List<String> _geohashes({
+    required double radiusInKm,
+    required GeoFirePoint center,
+  }) {
+    final precisionDigits = geohashDigitsFromRadius(radiusInKm);
+    final centerGeohash = center.geohash.substring(0, precisionDigits);
+    return [
+      ...neighborGeohashesOf(geohash: centerGeohash),
+      centerGeohash,
+    ];
   }
 
   /// Add query conditions, if queryBuilder parameter is given.
@@ -280,9 +323,8 @@ class GeoCollectionReference<T> {
   Future<List<QueryDocumentSnapshot<T>>> _mergeCollectionFutures(
       List<Future<List<QueryDocumentSnapshot<T>>>> collectionFutures) async {
     final mergedQueryDocumentSnapshots = <QueryDocumentSnapshot<T>>[];
-
-    await Future.forEach(collectionFutures,
-        (Future<List<QueryDocumentSnapshot<T>>> values) async {
+    await Future.forEach<Future<List<QueryDocumentSnapshot<T>>>>(
+        collectionFutures, (values) async {
       final queryDocumentSnapshots = await values;
       queryDocumentSnapshots.forEach((queryDocumentSnapshot) {
         mergedQueryDocumentSnapshots.add(queryDocumentSnapshot);
