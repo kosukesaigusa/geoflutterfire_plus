@@ -103,6 +103,8 @@ class WithConverterExampleState extends State<WithConverterExample> {
       body: Stack(
         children: [
           GoogleMap(
+            zoomControlsEnabled: false,
+            myLocationButtonEnabled: false,
             initialCameraPosition: _initialCameraPosition,
             markers: _markers,
             circles: {
@@ -112,7 +114,7 @@ class WithConverterExampleState extends State<WithConverterExample> {
                   _cameraPosition.target.latitude,
                   _cameraPosition.target.longitude,
                 ),
-                // multiple 1000 to convert from meters to kilometers.
+                // multiple 1000 to convert from kilometers to meters.
                 radius: _radiusInKm * 1000,
                 fillColor: Colors.black12,
                 strokeWidth: 0,
