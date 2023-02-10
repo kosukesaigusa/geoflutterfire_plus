@@ -103,7 +103,7 @@ class WithConverterExampleState extends State<WithConverterExample> {
       body: Stack(
         children: [
           GoogleMap(
-            mapToolbarEnabled: false,
+            zoomControlsEnabled: false,
             myLocationButtonEnabled: false,
             initialCameraPosition: _initialCameraPosition,
             markers: _markers,
