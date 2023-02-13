@@ -252,7 +252,7 @@ int geohashDigitsFromRadius(double radius) {
 }
 
 /// The equatorial radius of the earth in meters.
-const double _earthEqRadius = 6378137;
+const double _earthEquatorialRadius = 6378137;
 
 /// The meridional radius of the earth in meters.
 const double _earthPolarRadius = 6357852.3;
@@ -262,7 +262,7 @@ double distanceInKm({
   required final Coordinates from,
   required final Coordinates to,
 }) {
-  const radius = (_earthEqRadius + _earthPolarRadius) / 2;
+  const radius = (_earthEquatorialRadius + _earthPolarRadius) / 2;
   final latDelta = _toRadians(to.latitude - from.latitude);
   final lonDelta = _toRadians(to.longitude - from.longitude);
 
