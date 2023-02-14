@@ -15,5 +15,6 @@ dependencies:
   rxdart: ^0.27.7
 
 dev_dependencies:
+  fake_cloud_firestore:
   flutter_test:
     sdk: flutter
