@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 /// AlertDialog widget to add location data to Cloud Firestore.
 class AddLocationDialog extends StatefulWidget {
-  const AddLocationDialog({super.key, this.latitude, this.longitude});
+  const AddLocationDialog({super.key, this.latLng});
 
-  final double? latitude;
-  final double? longitude;
+  final LatLng? latLng;
 
   @override
   AddLocationDialogState createState() => AddLocationDialogState();
@@ -23,8 +23,10 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     // TODO: implement initState
     super.initState();
     // Step 2 <- SEE HERE
-    _latitudeEditingController.text = widget.latitude.toString();
-    _longitudeEditingController.text = widget.longitude.toString();
+    if (widget.latLng != null) {
+      _latitudeEditingController.text = widget.latLng!.latitude.toString();
+      _longitudeEditingController.text = widget.latLng!.longitude.toString();
+    }
   }
 
   @override

@@ -181,13 +181,13 @@ class ExampleState extends State<Example> {
                 radiusInKm: _radiusInKm,
               );
             },
-            onLongPress : (argument) {
+            onLongPress : (latLng) {
               setState(() {
                 showDialog<void>(
                   context: context,
                   builder: (context) => AddLocationDialog(
-                    latitude: argument.latitude,
-                    longitude: argument.longitude,
+                    latLng: latLng,
+                    // longitude: argument.longitude,
                   ),
                 );
               });
