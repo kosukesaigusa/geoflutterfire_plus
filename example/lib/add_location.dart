@@ -4,7 +4,10 @@ import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 /// AlertDialog widget to add location data to Cloud Firestore.
 class AddLocationDialog extends StatefulWidget {
-  const AddLocationDialog({super.key});
+  const AddLocationDialog({super.key, this.latitude, this.longitude});
+
+  final double? latitude;
+  final double? longitude;
 
   @override
   AddLocationDialogState createState() => AddLocationDialogState();
@@ -14,6 +17,15 @@ class AddLocationDialogState extends State<AddLocationDialog> {
   final _nameEditingController = TextEditingController();
   final _latitudeEditingController = TextEditingController();
   final _longitudeEditingController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // Step 2 <- SEE HERE
+    _latitudeEditingController.text = widget.latitude.toString();
+    _longitudeEditingController.text = widget.longitude.toString();
+  }
 
   @override
   void dispose() {
@@ -59,7 +71,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              label: const Text('latitude'),
+              label: const Text('longitude'),
             ),
           ),
           const SizedBox(height: 16),
@@ -106,4 +118,34 @@ class AddLocationDialogState extends State<AddLocationDialog> {
         'lng: $longitude, '
         'geohash: ${geoFirePoint.geohash}');
   }
+}
+
+/// Add location data to Cloud Firestore.
+Future<void> addLocation(
+  String name,
+  double latitude,
+  double longitude,
+) async {
+  // final name = _nameEditingController.value.text;
+  // if (name.isEmpty) {
+  //   throw Exception('Enter valid name');
+  // }
+  // final latitude = double.tryParse(_latitudeEditingController.value.text);
+  // final longitude = double.tryParse(_longitudeEditingController.value.text);
+  if (longitude == null) {
+    throw Exception('Enter valid values as latitude and longitude.');
+  }
+  final geoFirePoint = GeoFirePoint(latitude, longitude);
+  await GeoCollectionReference<Map<String, dynamic>>(
+    FirebaseFirestore.instance.collection('locations'),
+  ).add(<String, dynamic>{
+    'geo': geoFirePoint.data,
+    'name': name,
+    'isVisible': true,
+  });
+  debugPrint('🌍 Location data is successfully added: '
+      'name: $name'
+      'lat: $latitude, '
+      'lng: $longitude, '
+      'geohash: ${geoFirePoint.geohash}');
 }
