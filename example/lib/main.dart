@@ -104,10 +104,14 @@ class ExampleState extends State<Example> {
                   position: LatLng(geoPoint.latitude, geoPoint.longitude),
                   infoWindow: InfoWindow(title: name),
                   onTap: () async {
-                    print('tap!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+                    final geoFirePoint = GeoFirePoint(latitude, longitude);
                     showDialog<void>(
                       context: context,
-                      builder: (context) => SetOrDeleteLocationDialog(id: id),
+                      builder: (context) => SetOrDeleteLocationDialog(
+                        id: id,
+                        name: name,
+                        geoFirePoint: geoFirePoint,
+                      ),
                     );
                   },
                   draggable: true,
@@ -181,13 +185,12 @@ class ExampleState extends State<Example> {
                 radiusInKm: _radiusInKm,
               );
             },
-            onLongPress : (latLng) {
+            onLongPress: (latLng) {
               setState(() {
                 showDialog<void>(
                   context: context,
                   builder: (context) => AddLocationDialog(
-                    latLng: latLng,
-                    // longitude: argument.longitude,
+                    latLng: latLng
                   ),
                 );
               });

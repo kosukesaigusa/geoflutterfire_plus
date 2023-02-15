@@ -95,6 +95,9 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     );
   }
 
+  // TODO:別途整理する
+
+
   /// Add location data to Cloud Firestore.
   Future<void> _addLocation() async {
     final name = _nameEditingController.value.text;
@@ -128,15 +131,6 @@ Future<void> addLocation(
   double latitude,
   double longitude,
 ) async {
-  // final name = _nameEditingController.value.text;
-  // if (name.isEmpty) {
-  //   throw Exception('Enter valid name');
-  // }
-  // final latitude = double.tryParse(_latitudeEditingController.value.text);
-  // final longitude = double.tryParse(_longitudeEditingController.value.text);
-  if (longitude == null) {
-    throw Exception('Enter valid values as latitude and longitude.');
-  }
   final geoFirePoint = GeoFirePoint(latitude, longitude);
   await GeoCollectionReference<Map<String, dynamic>>(
     FirebaseFirestore.instance.collection('locations'),

@@ -1,28 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:simple/set_location.dart';
+
+import 'delete_location.dart';
 
 /// AlertDialog widget to add location data to Cloud Firestore.
-class SetOrDeleteLocationDialog extends StatefulWidget {
-  const SetOrDeleteLocationDialog({super.key, required this.id});
+class SetOrDeleteLocationDialog extends StatelessWidget {
+  const SetOrDeleteLocationDialog({
+    super.key,
+    required this.id,
+    required this.name,
+    required this.geoFirePoint,
+  });
 
   final String id;
-
-  @override
-  AddLocationDialogState createState() => AddLocationDialogState();
-}
-
-class AddLocationDialogState extends State<SetOrDeleteLocationDialog> {
-  final _nameEditingController = TextEditingController();
-  final _latitudeEditingController = TextEditingController();
-  final _longitudeEditingController = TextEditingController();
-
-  @override
-  void dispose() {
-    _latitudeEditingController.dispose();
-    _longitudeEditingController.dispose();
-    super.dispose();
-  }
+  final String name;
+  final GeoFirePoint geoFirePoint;
 
   @override
   Widget build(BuildContext context) {
@@ -34,61 +27,33 @@ class AddLocationDialogState extends State<SetOrDeleteLocationDialog> {
         children: [
           ElevatedButton(
             onPressed: () {
-              _setLocation(widget.id);
+              showDialog<void>(
+                context: context,
+                builder: (context) => SetLocationDialog(
+                  id: id,
+                  name: name,
+                  geoFirePoint: geoFirePoint,
+                ),
+              );
             },
             child: Text('set location'),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              _setLocation(widget.id);
-              Navigator.pop(context);
+              showDialog<void>(
+                context: context,
+                builder: (context) => DeleteLocationDialog(
+                  id: id,
+                  name: name,
+                  geoFirePoint: geoFirePoint,
+                ),
+              );
             },
             child: Text('delete location'),
           ),
-          const SizedBox(height: 16),
         ],
       ),
     );
-  }
-
-  void _setLocation(String id) async {
-    await GeoCollectionReference<Map<String, dynamic>>(
-      FirebaseFirestore.instance.collection('locations'),
-    ).delete(id);
-    debugPrint(
-      '🌍 Location data is successfully delete: '
-      'id: $id',
-    );
-  }
-
-// _deleteLocation() {
-
-// }
-
-  /// Add location data to Cloud Firestore.
-  Future<void> _addLocation() async {
-    final name = _nameEditingController.value.text;
-    if (name.isEmpty) {
-      throw Exception('Enter valid name');
-    }
-    final latitude = double.tryParse(_latitudeEditingController.value.text);
-    final longitude = double.tryParse(_longitudeEditingController.value.text);
-    if (latitude == null || longitude == null) {
-      throw Exception('Enter valid values as latitude and longitude.');
-    }
-    final geoFirePoint = GeoFirePoint(latitude, longitude);
-    await GeoCollectionReference<Map<String, dynamic>>(
-      FirebaseFirestore.instance.collection('locations'),
-    ).add(<String, dynamic>{
-      'geo': geoFirePoint.data,
-      'name': name,
-      'isVisible': true,
-    });
-    debugPrint('🌍 Location data is successfully added: '
-        'name: $name'
-        'lat: $latitude, '
-        'lng: $longitude, '
-        'geohash: ${geoFirePoint.geohash}');
   }
 }
