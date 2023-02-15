@@ -66,17 +66,27 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
-              final navigator = Navigator.of(context);
+              final newLatitude =
+                  double.tryParse(_latitudeEditingController.text);
+              final newLongitude =
+                  double.tryParse(_longitudeEditingController.text);
+              if (newLatitude == null || newLongitude == null) {
+                throw Exception(
+                    'Enter valid values as latitude and longitude.');
+              }
               try {
                 await _setLocation(
                   widget.id,
-                  widget.geoFirePoint,
+                  widget.geoFirePoint.geohash,
+                  newLatitude,
+                  newLongitude,
                 );
               } on Exception catch (e) {
                 debugPrint('🚨 An exception occurred when adding location data'
                     '${e.toString()}');
               }
-              navigator.pop();
+              final navigator = Navigator.of(context);
+              navigator.popUntil((route) => route.isFirst);
             },
             child: const Text('set location data'),
           ),
@@ -87,22 +97,24 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
 
   Future<void> _setLocation(
     String id,
-    GeoFirePoint geoFirePoint,
+    String field,
+    double newLatitude,
+    double newLongitude,
   ) async {
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection('locations'),
     ).setPoint(
       id: id,
-      field: geoFirePoint.geohash,
-      latitude: geoFirePoint.latitude,
-      longitude: geoFirePoint.longitude,
+      field: field,
+      latitude: newLatitude,
+      longitude: newLongitude,
     );
     debugPrint(
       '🌍 Location data is successfully set: '
       'id: ${id}'
-      'field: ${geoFirePoint.geohash}'
-      'latitude: ${geoFirePoint.latitude}'
-      'longitude: ${geoFirePoint.longitude}',
+      'field: ${field}'
+      'latitude: ${newLatitude}'
+      'longitude: ${newLongitude}',
     );
   }
 }

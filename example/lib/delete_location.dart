@@ -33,7 +33,6 @@ class DeleteLocationDialog extends StatelessWidget {
             alignment: Alignment.center,
             child: ElevatedButton(
               onPressed: () async {
-                final navigator = Navigator.of(context);
                 try {
                   await _deleteLocation(id);
                 } on Exception catch (e) {
@@ -41,7 +40,8 @@ class DeleteLocationDialog extends StatelessWidget {
                       '🚨 An exception occurred when adding location data'
                       '${e.toString()}');
                 }
-                navigator.pop();
+                final navigator = Navigator.of(context);
+                navigator.popUntil((route) => route.isFirst);
               },
               child: const Text('Delete'),
             ),
