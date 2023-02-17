@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../geoflutterfire_plus.dart';
@@ -6,11 +7,18 @@ import 'math.dart';
 
 /// Extended cloud_firestore [CollectionReference] for geo query features.
 class GeoCollectionReference<T> {
-  GeoCollectionReference(CollectionReference<T> collectionReference)
-      : _collectionReference = collectionReference;
+  GeoCollectionReference(
+    CollectionReference<T> collectionReference, {
+    @visibleForTesting this.rangeQueryEndAtCharacter = '{',
+  }) : _collectionReference = collectionReference;
 
   /// [CollectionReference] of target collection.
   final CollectionReference<T> _collectionReference;
+
+  /// A character added to Firestore string range query endAt.
+  /// About Firestore range queries, see:
+  /// https://firebase.google.com/docs/database/rest/retrieve-data#section-complex-queries
+  final String rangeQueryEndAtCharacter;
 
   /// Detection range buffer when not strict mode.
   static const _detectionRangeBuffer = 1.02;
@@ -239,12 +247,11 @@ class GeoCollectionReference<T> {
   }) {
     return _geohashes(radiusInKm: radiusInKm, center: center)
         .map(
-          (geohash) => _query(queryBuilder)
-              .orderBy('$field.geohash')
-              .startAt([geohash])
-              .endAt(['$geohash~'])
-              .snapshots()
-              .map((querySnapshot) => querySnapshot.docs),
+          (geohash) => geoQuery(
+            field: field,
+            geohash: geohash,
+            queryBuilder: queryBuilder,
+          ).snapshots().map((querySnapshot) => querySnapshot.docs),
         )
         .toList();
   }
@@ -259,9 +266,11 @@ class GeoCollectionReference<T> {
   }) {
     return _geohashes(radiusInKm: radiusInKm, center: center).map(
       (geohash) async {
-        final querySnapshot = await _query(queryBuilder)
-            .orderBy('$field.geohash')
-            .startAt([geohash]).endAt(['$geohash~']).get();
+        final querySnapshot = await geoQuery(
+          field: field,
+          geohash: geohash,
+          queryBuilder: queryBuilder,
+        ).get();
         return querySnapshot.docs;
       },
     ).toList();
@@ -280,13 +289,21 @@ class GeoCollectionReference<T> {
     ];
   }
 
-  /// Add query conditions, if queryBuilder parameter is given.
-  Query<T> _query(Query<T>? Function(Query<T> query)? queryBuilder) {
+  /// Returns geohash query, adding query conditions if queryBuilder parameter
+  /// is given.
+  @visibleForTesting
+  Query<T> geoQuery({
+    required String field,
+    required String geohash,
+    Query<T>? Function(Query<T> query)? queryBuilder,
+  }) {
     Query<T> query = _collectionReference;
     if (queryBuilder != null) {
       query = queryBuilder(query)!;
     }
-    return query;
+    return query
+        .orderBy('$field.geohash')
+        .startAt([geohash]).endAt(['$geohash${rangeQueryEndAtCharacter}']);
   }
 
   /// Merge given list of collection streams by `Rx.combineLatest`.
