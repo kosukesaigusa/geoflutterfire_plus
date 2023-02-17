@@ -20,9 +20,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // Step 2 <- SEE HERE
     if (widget.latLng != null) {
       _latitudeEditingController.text = widget.latLng!.latitude.toString();
       _longitudeEditingController.text = widget.latLng!.longitude.toString();
@@ -31,6 +29,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
 
   @override
   void dispose() {
+    _nameEditingController.dispose();
     _latitudeEditingController.dispose();
     _longitudeEditingController.dispose();
     super.dispose();
@@ -79,13 +78,29 @@ class AddLocationDialogState extends State<AddLocationDialog> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
-              final navigator = Navigator.of(context);
+              final name = _nameEditingController.value.text;
+              if (name.isEmpty) {
+                throw Exception('Enter valid name');
+              }
+              final latitude =
+                  double.tryParse(_latitudeEditingController.value.text);
+              final longitude =
+                  double.tryParse(_longitudeEditingController.value.text);
+              if (latitude == null || longitude == null) {
+                throw Exception(
+                    'Enter valid values as latitude and longitude.');
+              }
               try {
-                await _addLocation();
+                await _addLocation(
+                  name,
+                  latitude,
+                  longitude,
+                );
               } on Exception catch (e) {
                 debugPrint('🚨 An exception occurred when adding location data'
                     '${e.toString()}');
               }
+              final navigator = Navigator.of(context);
               navigator.pop();
             },
             child: const Text('Add location data'),
@@ -95,20 +110,12 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     );
   }
 
-  // TODO:別途整理する
-
-
   /// Add location data to Cloud Firestore.
-  Future<void> _addLocation() async {
-    final name = _nameEditingController.value.text;
-    if (name.isEmpty) {
-      throw Exception('Enter valid name');
-    }
-    final latitude = double.tryParse(_latitudeEditingController.value.text);
-    final longitude = double.tryParse(_longitudeEditingController.value.text);
-    if (latitude == null || longitude == null) {
-      throw Exception('Enter valid values as latitude and longitude.');
-    }
+  Future<void> _addLocation(
+    String name,
+    double latitude,
+    double longitude,
+  ) async {
     final geoFirePoint = GeoFirePoint(latitude, longitude);
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection('locations'),
@@ -117,31 +124,12 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       'name': name,
       'isVisible': true,
     });
-    debugPrint('🌍 Location data is successfully added: '
-        'name: $name'
-        'lat: $latitude, '
-        'lng: $longitude, '
-        'geohash: ${geoFirePoint.geohash}');
-  }
-}
-
-/// Add location data to Cloud Firestore.
-Future<void> addLocation(
-  String name,
-  double latitude,
-  double longitude,
-) async {
-  final geoFirePoint = GeoFirePoint(latitude, longitude);
-  await GeoCollectionReference<Map<String, dynamic>>(
-    FirebaseFirestore.instance.collection('locations'),
-  ).add(<String, dynamic>{
-    'geo': geoFirePoint.data,
-    'name': name,
-    'isVisible': true,
-  });
-  debugPrint('🌍 Location data is successfully added: '
+    debugPrint(
+      '🌍 Location data is successfully added: '
       'name: $name'
       'lat: $latitude, '
       'lng: $longitude, '
-      'geohash: ${geoFirePoint.geohash}');
+      'geohash: ${geoFirePoint.geohash}',
+    );
+  }
 }
