@@ -19,15 +19,24 @@ class SetLocationDialog extends StatefulWidget {
 }
 
 class _SetLocationDialogState extends State<SetLocationDialog> {
+  final _nameEditingController = TextEditingController();
   final _latitudeEditingController = TextEditingController();
   final _longitudeEditingController = TextEditingController();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    _nameEditingController.text = widget.name;
     _latitudeEditingController.text = widget.geoFirePoint.latitude.toString();
     _longitudeEditingController.text = widget.geoFirePoint.longitude.toString();
+  }
+
+  @override
+  void dispose() {
+    _nameEditingController.dispose();
+    _latitudeEditingController.dispose();
+    _longitudeEditingController.dispose();
+    super.dispose();
   }
 
   @override
@@ -40,7 +49,16 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(widget.name),
+          TextField(
+            controller: _nameEditingController,
+            keyboardType: TextInputType.name,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              label: const Text('name'),
+            ),
+          ),
           const SizedBox(height: 16),
           TextField(
             controller: _latitudeEditingController,
@@ -66,6 +84,10 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
+              final name = _nameEditingController.value.text;
+              if (name.isEmpty) {
+                throw Exception('Enter valid name');
+              }
               final newLatitude =
                   double.tryParse(_latitudeEditingController.text);
               final newLongitude =
@@ -88,13 +110,14 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
               final navigator = Navigator.of(context);
               navigator.popUntil((route) => route.isFirst);
             },
-            child: const Text('set location data'),
+            child: const Text('Set location data'),
           ),
         ],
       ),
     );
   }
 
+  /// Set location data to Cloud Firestore.
   Future<void> _set(
     String id,
     String name,
@@ -104,13 +127,11 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
     final geoFirePoint = GeoFirePoint(newLatitude, newLongitude);
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection('locations'),
-    ).setDocument(
-      id: id,
-      data:{
-    'geo': geoFirePoint.data,
-    'name': name,
-    'isVisible': true,
-  });
+    ).setDocument(id: id, data: {
+      'geo': geoFirePoint.data,
+      'name': name,
+      'isVisible': true,
+    });
     debugPrint(
       '🌍 Location data is successfully set: '
       'id: ${id}'
