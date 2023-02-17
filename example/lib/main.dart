@@ -189,9 +189,7 @@ class ExampleState extends State<Example> {
               setState(() {
                 showDialog<void>(
                   context: context,
-                  builder: (context) => AddLocationDialog(
-                    latLng: latLng
-                  ),
+                  builder: (context) => AddLocationDialog(latLng: latLng),
                 );
               });
             },

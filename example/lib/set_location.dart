@@ -75,9 +75,9 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
                     'Enter valid values as latitude and longitude.');
               }
               try {
-                await _setLocation(
+                await _set(
                   widget.id,
-                  widget.geoFirePoint.geohash,
+                  widget.name,
                   newLatitude,
                   newLongitude,
                 );
@@ -95,24 +95,25 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
     );
   }
 
-  Future<void> _setLocation(
+  Future<void> _set(
     String id,
-    String field,
+    String name,
     double newLatitude,
     double newLongitude,
   ) async {
+    final geoFirePoint = GeoFirePoint(newLatitude, newLongitude);
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection('locations'),
-    ).setPoint(
+    ).setDocument(
       id: id,
-      field: field,
-      latitude: newLatitude,
-      longitude: newLongitude,
-    );
+      data:{
+    'geo': geoFirePoint.data,
+    'name': name,
+    'isVisible': true,
+  });
     debugPrint(
       '🌍 Location data is successfully set: '
       'id: ${id}'
-      'field: ${field}'
       'latitude: ${newLatitude}'
       'longitude: ${newLongitude}',
     );

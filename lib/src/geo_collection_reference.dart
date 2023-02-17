@@ -18,6 +18,9 @@ class GeoCollectionReference<T> {
   /// Creates a document with provided [data].
   Future<DocumentReference<T>> add(T data) => _collectionReference.add(data);
 
+  /// Deletes the document from the collection.
+  Future<void> delete(String id) => _collectionReference.doc(id).delete();
+
   /// Sets the provided [data] on the document.
   Future<void> setDocument({
     required String id,
@@ -26,8 +29,6 @@ class GeoCollectionReference<T> {
   }) =>
       _collectionReference.doc(id).set(data, SetOptions(merge: merge));
 
-  /// Deletes the document from the collection.
-  Future<void> delete(String id) => _collectionReference.doc(id).delete();
 
   /// Sets or updates the pair of ([latitude], [longitude]) as cloud_firestore
   /// [GeoPoint] and geohash string on the document's given [field].
