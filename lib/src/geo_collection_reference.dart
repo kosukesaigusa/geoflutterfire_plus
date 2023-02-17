@@ -9,8 +9,9 @@ import 'math.dart';
 class GeoCollectionReference<T> {
   GeoCollectionReference(
     CollectionReference<T> collectionReference, {
-    @visibleForTesting this.rangeQueryEndAtCharacter = '{',
-  }) : _collectionReference = collectionReference;
+    @visibleForTesting String rangeQueryEndAtCharacter = '{',
+  })  : _collectionReference = collectionReference,
+        _rangeQueryEndAtCharacter = rangeQueryEndAtCharacter;
 
   /// [CollectionReference] of target collection.
   final CollectionReference<T> _collectionReference;
@@ -18,7 +19,7 @@ class GeoCollectionReference<T> {
   /// A character added to Firestore string range query endAt.
   /// About Firestore range queries, see:
   /// https://firebase.google.com/docs/database/rest/retrieve-data#section-complex-queries
-  final String rangeQueryEndAtCharacter;
+  final String _rangeQueryEndAtCharacter;
 
   /// Detection range buffer when not strict mode.
   static const _detectionRangeBuffer = 1.02;
@@ -303,7 +304,7 @@ class GeoCollectionReference<T> {
     }
     return query
         .orderBy('$field.geohash')
-        .startAt([geohash]).endAt(['$geohash${rangeQueryEndAtCharacter}']);
+        .startAt([geohash]).endAt(['$geohash${_rangeQueryEndAtCharacter}']);
   }
 
   /// Merge given list of collection streams by `Rx.combineLatest`.
