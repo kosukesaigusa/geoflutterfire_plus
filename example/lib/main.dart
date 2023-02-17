@@ -93,7 +93,6 @@ class ExampleState extends State<Example> {
               if (data == null) {
                 continue;
               }
-              print(data);
               final name = data['name'] as String;
               final geoPoint =
                   (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint;
