@@ -6,6 +6,7 @@ analyzer:
     strict-raw-types: true
   errors:
     included_file_warning: ignore
+    invalid_use_of_visible_for_testing_member: error
 
 linter:
   rules:
