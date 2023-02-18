@@ -215,21 +215,6 @@ List<String> neighborsOfGeohash(final String geohash) {
   ];
 }
 
-/// Returns neighbor geohash of given [coordinatesWithErrors].
-String _encodeNeighbor({
-  required final _CoordinatesWithErrors coordinatesWithErrors,
-  required final String geohash,
-  required final double neighborLatitudeDirection,
-  required final double neighborLongitudeDirection,
-}) =>
-    encode(
-      latitude: coordinatesWithErrors.latitude +
-          neighborLatitudeDirection * coordinatesWithErrors.latitudeError * 2,
-      longitude: coordinatesWithErrors.longitude +
-          neighborLongitudeDirection * coordinatesWithErrors.longitudeError * 2,
-      geohashLength: geohash.length,
-    );
-
 class _NeighborDirection {
   const _NeighborDirection({
     required int this.latitudeDirection,
@@ -238,6 +223,17 @@ class _NeighborDirection {
 
   final int latitudeDirection;
   final int longitudeDirection;
+
+  /// Returns neighbor geohash of given [coordinatesWithErrors].
+  String encodeNeighbor(final _CoordinatesWithErrors coordinatesWithErrors,
+      final String geohash) {
+    return encode(
+        latitude: coordinatesWithErrors.latitude +
+            latitudeDirection * coordinatesWithErrors.latitudeError * 2,
+        longitude: coordinatesWithErrors.longitude +
+            longitudeDirection * coordinatesWithErrors.longitudeError * 2,
+        geohashLength: geohash.length);
+  }
 }
 
 /// Returns geohash digits from [radius] in kilometers,
