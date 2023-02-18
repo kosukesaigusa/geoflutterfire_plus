@@ -165,7 +165,7 @@ List<String> neighborsOfGeohash(final String geohash) {
   final coordinatesWithErrors = _decode(geohash);
   return _clockwiseNeighborDirections
       .map((direction) =>
-          direction.encodeNeighbor(coordinatesWithErrors, geohash))
+          direction.encodeNeighbor(coordinatesWithErrors, geohash.length))
       .toList();
 }
 
@@ -180,13 +180,13 @@ class _NeighborDirection {
 
   /// Returns neighbor geohash of given [coordinatesWithErrors].
   String encodeNeighbor(final _CoordinatesWithErrors coordinatesWithErrors,
-      final String geohash) {
+      final int geohashLength) {
     return encode(
         latitude: coordinatesWithErrors.latitude +
             latitudeDirection * coordinatesWithErrors.latitudeError * 2,
         longitude: coordinatesWithErrors.longitude +
             longitudeDirection * coordinatesWithErrors.longitudeError * 2,
-        geohashLength: geohash.length);
+        geohashLength: geohashLength);
   }
 }
 
