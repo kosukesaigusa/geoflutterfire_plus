@@ -219,6 +219,16 @@ String _encodeNeighbor({
       geohashLength: geohash.length,
     );
 
+class _NeighborDirection {
+  const _NeighborDirection({
+    required int this.latitudeDirection,
+    required int this.longitudeDirection,
+  });
+
+  final int latitudeDirection;
+  final int longitudeDirection;
+}
+
 /// Returns geohash digits from [radius] in kilometers,
 /// which decide how precisely detect neighbors.
 ///
