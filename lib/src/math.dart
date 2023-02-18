@@ -61,7 +61,7 @@ String encode({
 
   while (characters.length < geohashLength) {
     if (bitsTotal.isEven) {
-      final middle = (maxLongitude + minLongitude) / 2;
+      final middle = _getMiddleOf(maxLongitude, minLongitude);
       if (longitude > middle) {
         hashValue = (hashValue << 1) + 1;
         minLongitude = middle;
@@ -70,7 +70,7 @@ String encode({
         maxLongitude = middle;
       }
     } else {
-      final middle = (maxLatitude + minLatitude) / 2;
+      final middle = _getMiddleOf(maxLatitude, minLatitude);
       if (latitude > middle) {
         hashValue = (hashValue << 1) + 1;
         minLatitude = middle;
@@ -96,8 +96,10 @@ String encode({
 /// It includes 'latitude', 'longitude', 'latitudeError', 'longitudeError'.
 _CoordinatesWithErrors _decode(final String geohash) {
   final boundingBox = _decodedBoundingBox(geohash);
-  final latitude = (boundingBox.minLatitude + boundingBox.maxLatitude) / 2;
-  final longitude = (boundingBox.minLongitude + boundingBox.maxLongitude) / 2;
+  final latitude =
+      _getMiddleOf(boundingBox.minLatitude, boundingBox.maxLatitude);
+  final longitude =
+      _getMiddleOf(boundingBox.minLongitude, boundingBox.maxLongitude);
   final latitudeError = boundingBox.maxLatitude - latitude;
   final longitudeError = boundingBox.maxLongitude - longitude;
   return _CoordinatesWithErrors(
@@ -121,14 +123,14 @@ _DecodedBoundingBox _decodedBoundingBox(final String geohash) {
     for (var bits = 4; bits >= 0; bits--) {
       final bit = (hashValue! >> bits) & 1;
       if (isLongitude) {
-        final middle = (maxLongitude + minLongitude) / 2;
+        final middle = _getMiddleOf(maxLongitude, minLongitude);
         if (bit == 1) {
           minLongitude = middle;
         } else {
           maxLongitude = middle;
         }
       } else {
-        final middle = (maxLatitude + minLatitude) / 2;
+        final middle = _getMiddleOf(maxLatitude, minLatitude);
         if (bit == 1) {
           minLatitude = middle;
         } else {
