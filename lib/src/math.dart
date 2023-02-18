@@ -277,6 +277,8 @@ double distanceInKm({
 
 double _toRadians(final double num) => num * (pi / 180.0);
 
+double _getMiddleOf(final double x1, final double x2) => (x1 + x2) / 2;
+
 class _DecodedBoundingBox extends Equatable {
   const _DecodedBoundingBox({
     required this.minLatitude,
