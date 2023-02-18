@@ -113,7 +113,6 @@ class ExampleState extends State<Example> {
                       ),
                     );
                   },
-                  draggable: true,
                 ),
               );
             }
@@ -185,12 +184,10 @@ class ExampleState extends State<Example> {
               );
             },
             onLongPress: (latLng) {
-              setState(() {
-                showDialog<void>(
-                  context: context,
-                  builder: (context) => AddLocationDialog(latLng: latLng),
-                );
-              });
+              showDialog<void>(
+                context: context,
+                builder: (context) => AddLocationDialog(latLng: latLng),
+              );
             },
           ),
           Positioned(
