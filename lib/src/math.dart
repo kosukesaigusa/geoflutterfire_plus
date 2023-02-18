@@ -148,6 +148,17 @@ _DecodedBoundingBox _decodedBoundingBox(final String geohash) {
   );
 }
 
+const _clockwiseNeighborDirections = [
+  _NeighborDirection(latitudeDirection: 1, longitudeDirection: 0),
+  _NeighborDirection(latitudeDirection: 1, longitudeDirection: 1),
+  _NeighborDirection(latitudeDirection: 0, longitudeDirection: 1),
+  _NeighborDirection(latitudeDirection: -1, longitudeDirection: 1),
+  _NeighborDirection(latitudeDirection: -1, longitudeDirection: 0),
+  _NeighborDirection(latitudeDirection: -1, longitudeDirection: -1),
+  _NeighborDirection(latitudeDirection: 0, longitudeDirection: -1),
+  _NeighborDirection(latitudeDirection: 1, longitudeDirection: -1),
+];
+
 /// Returns all neighbors' geohash strings of given [geohash] clockwise,
 /// in the following order, north, east, south, and then west.
 List<String> neighborsOfGeohash(final String geohash) {
