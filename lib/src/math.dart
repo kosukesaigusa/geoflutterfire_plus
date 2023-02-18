@@ -163,56 +163,10 @@ const _clockwiseNeighborDirections = [
 /// in the following order, north, east, south, and then west.
 List<String> neighborsOfGeohash(final String geohash) {
   final coordinatesWithErrors = _decode(geohash);
-  return [
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 1,
-      neighborLongitudeDirection: 0,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 1,
-      neighborLongitudeDirection: 1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 0,
-      neighborLongitudeDirection: 1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: -1,
-      neighborLongitudeDirection: 1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: -1,
-      neighborLongitudeDirection: 0,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: -1,
-      neighborLongitudeDirection: -1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 0,
-      neighborLongitudeDirection: -1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 1,
-      neighborLongitudeDirection: -1,
-    )
-  ];
+  return _clockwiseNeighborDirections
+      .map((direction) =>
+          direction.encodeNeighbor(coordinatesWithErrors, geohash))
+      .toList();
 }
 
 class _NeighborDirection {
