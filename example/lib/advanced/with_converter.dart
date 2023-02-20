@@ -6,6 +6,7 @@ import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../add_location.dart';
+import '../set_or_delete_location.dart';
 import 'entity.dart';
 import 'utils.dart';
 
@@ -48,6 +49,7 @@ class WithConverterExampleState extends State<WithConverterExample> {
           .listen((documentSnapshots) {
         final markers = <Marker>{};
         for (final ds in documentSnapshots) {
+          final id = ds.id;
           final location = ds.data();
           if (location == null) {
             continue;
@@ -60,6 +62,17 @@ class WithConverterExampleState extends State<WithConverterExample> {
                   MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
               position: LatLng(geoPoint.latitude, geoPoint.longitude),
               infoWindow: InfoWindow(title: name),
+              onTap: () async {
+                final geoFirePoint = GeoFirePoint(latitude, longitude);
+                showDialog<void>(
+                  context: context,
+                  builder: (context) => SetOrDeleteLocationDialog(
+                    id: id,
+                    name: name,
+                    geoFirePoint: geoFirePoint,
+                  ),
+                );
+              },
             ),
           );
         }
@@ -129,7 +142,12 @@ class WithConverterExampleState extends State<WithConverterExample> {
                 longitude: cameraPosition.target.longitude,
                 radiusInKm: _radiusInKm,
               );
-              setState(() {});
+            },
+            onLongPress: (latLng) {
+              showDialog<void>(
+                context: context,
+                builder: (context) => AddLocationDialog(latLng: latLng),
+              );
             },
           ),
           Positioned(
