@@ -32,8 +32,8 @@ class GeoFirePoint {
     required double longitude,
   }) =>
       distanceInKm(
-        from: coordinates,
-        to: Coordinates(latitude, longitude),
+        coordinates1: coordinates,
+        coordinates2: Coordinates(latitude, longitude),
       );
 
   /// Returns [geopoint] and [geohash] as Map<String, dynamic>. Can be used when
