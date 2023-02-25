@@ -149,12 +149,10 @@ class WithConverterExampleState extends State<WithConverterExample> {
                 radiusInKm: _radiusInKm,
               );
             },
-            onLongPress: (latLng) {
-              showDialog<void>(
+            onLongPress: (latLng) => showDialog<void>(
                 context: context,
                 builder: (context) => AddLocationDialog(latLng: latLng),
-              );
-            },
+              ),
           ),
           Positioned(
             child: Align(

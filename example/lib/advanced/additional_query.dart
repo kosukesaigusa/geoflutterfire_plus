@@ -150,12 +150,10 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
                 radiusInKm: _radiusInKm,
               );
             },
-            onLongPress: (latLng) {
-              showDialog<void>(
-                context: context,
-                builder: (context) => AddLocationDialog(latLng: latLng),
-              );
-            },
+            onLongPress: (latLng) => showDialog<void>(
+              context: context,
+              builder: (context) => AddLocationDialog(latLng: latLng),
+            ),
           ),
           Positioned(
             child: Align(

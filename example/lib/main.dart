@@ -25,7 +25,6 @@ class App extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         sliderTheme: SliderThemeData(
           overlayShape: SliderComponentShape.noOverlay,
         ),
@@ -189,12 +188,10 @@ class ExampleState extends State<Example> {
                 radiusInKm: _radiusInKm,
               );
             },
-            onLongPress: (latLng) {
-              showDialog<void>(
+            onLongPress: (latLng) => showDialog<void>(
                 context: context,
                 builder: (context) => AddLocationDialog(latLng: latLng),
-              );
-            },
+              ),
           ),
           Positioned(
             child: Align(
