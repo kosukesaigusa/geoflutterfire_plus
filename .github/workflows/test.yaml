@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  FLUTTER_VERSION: '2.5.3'
+  FLUTTER_VERSION: '3.7.4'
 
 jobs:
   test:
@@ -39,11 +39,11 @@ jobs:
         run: |
           flutter test --machine > test_report.log
 
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: 'flutter test'
-          path: 'test_report.log'
-          reporter: 'flutter-json'
-          fail-on-error: 'false'
+      # - name: Test Report
+      #   uses: dorny/test-reporter@v1
+      #   if: always()
+      #   with:
+      #     name: 'flutter test'
+      #     path: 'test_report.log'
+      #     reporter: 'flutter-json'
+      #     fail-on-error: 'false'
