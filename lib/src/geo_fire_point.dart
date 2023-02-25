@@ -5,6 +5,7 @@ import 'math.dart';
 
 /// A model corresponds to Cloud Firestore as geopoint field.
 class GeoFirePoint {
+  /// Instantiate [GeoFirePoint].
   GeoFirePoint(this.latitude, this.longitude);
 
   /// Latitude of the location.
@@ -28,8 +29,8 @@ class GeoFirePoint {
   /// Returns distance in kilometers between [GeoFirePoint] and given
   /// ([latitude], [longitude]).
   double distanceBetweenInKm({
-    required double latitude,
-    required double longitude,
+    required final double latitude,
+    required final double longitude,
   }) =>
       distanceInKm(
         coordinates1: coordinates,
