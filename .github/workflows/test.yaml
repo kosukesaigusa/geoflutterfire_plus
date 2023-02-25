@@ -15,9 +15,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
-- run: flutter --version
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
