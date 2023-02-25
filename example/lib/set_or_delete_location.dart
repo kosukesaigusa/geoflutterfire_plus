@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
-import 'package:simple/set_location.dart';
 
 import 'delete_location.dart';
+import 'set_location.dart';
 
 /// AlertDialog widget to add location data to Cloud Firestore.
 class SetOrDeleteLocationDialog extends StatelessWidget {
@@ -36,7 +36,7 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
                 ),
               );
             },
-            child: Text('set location'),
+            child: const Text('set location'),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -50,7 +50,7 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
                 ),
               );
             },
-            child: Text('delete location'),
+            child: const Text('delete location'),
           ),
         ],
       ),

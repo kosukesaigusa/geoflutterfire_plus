@@ -164,29 +164,34 @@ const _clockwiseNeighborDirections = [
 List<String> neighborsOfGeohash(final String geohash) {
   final coordinatesWithErrors = _decode(geohash);
   return _clockwiseNeighborDirections
-      .map((direction) =>
-          direction.encodeNeighbor(coordinatesWithErrors, geohash.length))
+      .map(
+        (final direction) =>
+            direction.encodeNeighbor(coordinatesWithErrors, geohash.length),
+      )
       .toList();
 }
 
 class _NeighborDirection {
   const _NeighborDirection({
-    required int this.latitudeDirection,
-    required int this.longitudeDirection,
+    required this.latitudeDirection,
+    required this.longitudeDirection,
   });
 
   final int latitudeDirection;
   final int longitudeDirection;
 
   /// Returns neighbor geohash of given [coordinatesWithErrors].
-  String encodeNeighbor(final _CoordinatesWithErrors coordinatesWithErrors,
-      final int geohashLength) {
+  String encodeNeighbor(
+    final _CoordinatesWithErrors coordinatesWithErrors,
+    final int geohashLength,
+  ) {
     return encode(
-        latitude: coordinatesWithErrors.latitude +
-            latitudeDirection * coordinatesWithErrors.latitudeError * 2,
-        longitude: coordinatesWithErrors.longitude +
-            longitudeDirection * coordinatesWithErrors.longitudeError * 2,
-        geohashLength: geohashLength);
+      latitude: coordinatesWithErrors.latitude +
+          latitudeDirection * coordinatesWithErrors.latitudeError * 2,
+      longitude: coordinatesWithErrors.longitude +
+          longitudeDirection * coordinatesWithErrors.longitudeError * 2,
+      geohashLength: geohashLength,
+    );
   }
 }
 
@@ -202,7 +207,7 @@ class _NeighborDirection {
 /// * 7	≤ 153m x 153m
 /// * 8	≤ 38.2m x 19.1m
 /// * 9	≤ 4.77m x 4.77m
-int geohashDigitsFromRadius(double radius) {
+int geohashDigitsFromRadius(final double radius) {
   if (radius <= 0.00477) {
     return 9;
   } else if (radius <= 0.0382) {
