@@ -348,9 +348,7 @@ class GeoCollectionReference<T> {
     await Future.forEach<Future<List<QueryDocumentSnapshot<T>>>>(
         collectionFutures, (final values) async {
       final queryDocumentSnapshots = await values;
-      for (final queryDocumentSnapshot in queryDocumentSnapshots) {
-        mergedQueryDocumentSnapshots.add(queryDocumentSnapshot);
-      }
+      queryDocumentSnapshots.forEach(mergedQueryDocumentSnapshots.add);
     });
     return mergedQueryDocumentSnapshots;
   }
