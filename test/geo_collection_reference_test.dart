@@ -10,18 +10,18 @@ void main() async {
   /// Geohash strings to be stored, includes invalid characters as geohashes for
   /// testing.
   const geohashes = <String>[
-    "a",
-    "aaa",
-    "aab",
-    "aabaaaa",
-    "aaz",
-    "aa{",
-    "aa|",
-    "aa}",
-    "aa~",
-    "aba",
-    "bbb",
-    "efg",
+    'a',
+    'aaa',
+    'aab',
+    'aabaaaa',
+    'aaz',
+    'aa{',
+    'aa|',
+    'aa}',
+    'aa~',
+    'aba',
+    'bbb',
+    'efg',
   ];
 
   /// A field name of geohashes to be stored.
@@ -29,7 +29,7 @@ void main() async {
 
   group('GeoCollectionReference.geoQuery', () {
     setUpAll(() async {
-      await Future.forEach<String>(geohashes, (geohash) async {
+      await Future.forEach<String>(geohashes, (final geohash) async {
         await fakeCollectionReference.add({
           '$field.geohash': geohash,
         });
@@ -42,11 +42,12 @@ void main() async {
       final querySnapshot = await geoCollectionReference
           .geoQuery(field: field, geohash: 'aa')
           .get();
-      final fetchedGeohashes = querySnapshot.docs.map((queryDocumentSnapshot) {
+      final fetchedGeohashes =
+          querySnapshot.docs.map((final queryDocumentSnapshot) {
         final data = queryDocumentSnapshot.data();
         return (data['geo'] as Map<String, dynamic>)['geohash'] as String;
       }).toList();
-      expect(fetchedGeohashes, ["aaa", "aab", "aabaaaa", "aaz", "aa{"]);
+      expect(fetchedGeohashes, ['aaa', 'aab', 'aabaaaa', 'aaz', 'aa{']);
     });
 
     test(
@@ -59,13 +60,14 @@ void main() async {
       final querySnapshot = await geoCollectionReference
           .geoQuery(field: field, geohash: 'aa')
           .get();
-      final fetchedGeohashes = querySnapshot.docs.map((queryDocumentSnapshot) {
+      final fetchedGeohashes =
+          querySnapshot.docs.map((final queryDocumentSnapshot) {
         final data = queryDocumentSnapshot.data();
         return (data['geo'] as Map<String, dynamic>)['geohash'] as String;
       }).toList();
       expect(
         fetchedGeohashes,
-        ["aaa", "aab", "aabaaaa", "aaz", "aa{", "aa|", "aa}", "aa~"],
+        ['aaa', 'aab', 'aabaaaa', 'aaz', 'aa{', 'aa|', 'aa}', 'aa~'],
       );
     });
   });
