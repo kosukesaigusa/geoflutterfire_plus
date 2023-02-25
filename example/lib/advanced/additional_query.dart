@@ -89,9 +89,15 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
   /// Google Maps initial camera zoom level.
   static const double _initialZoom = 14;
 
+  /// Google Maps initial target position.
+  static final LatLng _initialTarget = LatLng(
+    tokyoStation.latitude,
+    tokyoStation.longitude,
+  );
+
   /// Google Maps initial camera position.
   static final _initialCameraPosition = CameraPosition(
-    target: LatLng(tokyoStation.latitude, tokyoStation.longitude),
+    target: _initialTarget,
     zoom: _initialZoom,
   );
 
