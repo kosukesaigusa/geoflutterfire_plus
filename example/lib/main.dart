@@ -5,10 +5,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:simple/set_or_delete_location.dart';
 
 import 'add_location.dart';
 import 'firebase_options.dart';
+import 'set_or_delete_location.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -104,7 +104,7 @@ class ExampleState extends State<Example> {
                   infoWindow: InfoWindow(title: name),
                   onTap: () async {
                     final geoFirePoint = GeoFirePoint(latitude, longitude);
-                    showDialog<void>(
+                    await showDialog<void>(
                       context: context,
                       builder: (context) => SetOrDeleteLocationDialog(
                         id: id,
@@ -232,7 +232,7 @@ class ExampleState extends State<Example> {
                       max: 100,
                       divisions: 99,
                       label: _radiusInKm.toStringAsFixed(1),
-                      onChanged: (double value) {
+                      onChanged: (value) {
                         _radiusInKm = value;
                         _subscription = _geoQuerySubscription(
                           latitude: _cameraPosition.target.latitude,

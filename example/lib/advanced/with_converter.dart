@@ -64,7 +64,7 @@ class WithConverterExampleState extends State<WithConverterExample> {
               infoWindow: InfoWindow(title: name),
               onTap: () async {
                 final geoFirePoint = GeoFirePoint(latitude, longitude);
-                showDialog<void>(
+                await showDialog<void>(
                   context: context,
                   builder: (context) => SetOrDeleteLocationDialog(
                     id: id,
@@ -192,7 +192,7 @@ class WithConverterExampleState extends State<WithConverterExample> {
                       max: 100,
                       divisions: 99,
                       label: _radiusInKm.toStringAsFixed(1),
-                      onChanged: (double value) {
+                      onChanged: (value) {
                         _radiusInKm = value;
                         _subscription = _geoQuerySubscription(
                           latitude: _cameraPosition.target.latitude,
