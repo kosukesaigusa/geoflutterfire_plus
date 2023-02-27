@@ -38,7 +38,9 @@ class AddLocationDialogState extends State<AddLocationDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Enter location data'),
+      title: const Center(
+        child: Text('Enter location data'),
+      ),
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -78,6 +80,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
+              final navigator = Navigator.of(context);
               final name = _nameEditingController.value.text;
               if (name.isEmpty) {
                 throw Exception('Enter valid name');
@@ -88,7 +91,8 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                   double.tryParse(_longitudeEditingController.value.text);
               if (latitude == null || longitude == null) {
                 throw Exception(
-                    'Enter valid values as latitude and longitude.');
+                  'Enter valid values as latitude and longitude.',
+                );
               }
               try {
                 await _addLocation(
@@ -97,10 +101,10 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                   longitude,
                 );
               } on Exception catch (e) {
-                debugPrint('🚨 An exception occurred when adding location data'
-                    '${e.toString()}');
+                debugPrint(
+                  '🚨 An exception occurred when adding location data $e',
+                );
               }
-              final navigator = Navigator.of(context);
               navigator.pop();
             },
             child: const Text('Add location data'),

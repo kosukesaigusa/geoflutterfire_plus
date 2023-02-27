@@ -46,9 +46,9 @@ const _base32CodesMap = <String, int>{
 /// Returns geohash String from [latitude] and [longitude],
 /// whose length is equal to [geohashLength].
 String encode({
-  required double latitude,
-  required double longitude,
-  int geohashLength = 9,
+  required final double latitude,
+  required final double longitude,
+  final int geohashLength = 9,
 }) {
   final characters = <String>[];
   var bits = 0;
@@ -61,7 +61,7 @@ String encode({
 
   while (characters.length < geohashLength) {
     if (bitsTotal.isEven) {
-      final middle = (maxLongitude + minLongitude) / 2;
+      final middle = _getMiddleOf(maxLongitude, minLongitude);
       if (longitude > middle) {
         hashValue = (hashValue << 1) + 1;
         minLongitude = middle;
@@ -70,7 +70,7 @@ String encode({
         maxLongitude = middle;
       }
     } else {
-      final middle = (maxLatitude + minLatitude) / 2;
+      final middle = _getMiddleOf(maxLatitude, minLatitude);
       if (latitude > middle) {
         hashValue = (hashValue << 1) + 1;
         minLatitude = middle;
@@ -94,10 +94,12 @@ String encode({
 
 /// Decodes a [geohash] string into [_CoordinatesWithErrors].
 /// It includes 'latitude', 'longitude', 'latitudeError', 'longitudeError'.
-_CoordinatesWithErrors _decode(String geohash) {
+_CoordinatesWithErrors _decode(final String geohash) {
   final boundingBox = _decodedBoundingBox(geohash);
-  final latitude = (boundingBox.minLatitude + boundingBox.maxLatitude) / 2;
-  final longitude = (boundingBox.minLongitude + boundingBox.maxLongitude) / 2;
+  final latitude =
+      _getMiddleOf(boundingBox.minLatitude, boundingBox.maxLatitude);
+  final longitude =
+      _getMiddleOf(boundingBox.minLongitude, boundingBox.maxLongitude);
   final latitudeError = boundingBox.maxLatitude - latitude;
   final longitudeError = boundingBox.maxLongitude - longitude;
   return _CoordinatesWithErrors(
@@ -109,7 +111,7 @@ _CoordinatesWithErrors _decode(String geohash) {
 }
 
 /// Decodes a hashString into a bounding box that matches it.
-_DecodedBoundingBox _decodedBoundingBox(String geohash) {
+_DecodedBoundingBox _decodedBoundingBox(final String geohash) {
   var isLongitude = true;
   var maxLatitude = 90.0;
   var minLatitude = -90.0;
@@ -121,14 +123,14 @@ _DecodedBoundingBox _decodedBoundingBox(String geohash) {
     for (var bits = 4; bits >= 0; bits--) {
       final bit = (hashValue! >> bits) & 1;
       if (isLongitude) {
-        final middle = (maxLongitude + minLongitude) / 2;
+        final middle = _getMiddleOf(maxLongitude, minLongitude);
         if (bit == 1) {
           minLongitude = middle;
         } else {
           maxLongitude = middle;
         }
       } else {
-        final middle = (maxLatitude + minLatitude) / 2;
+        final middle = _getMiddleOf(maxLatitude, minLatitude);
         if (bit == 1) {
           minLatitude = middle;
         } else {
@@ -146,76 +148,52 @@ _DecodedBoundingBox _decodedBoundingBox(String geohash) {
   );
 }
 
+const _clockwiseNeighborDirections = [
+  _NeighborDirection(latitudeDirection: 1, longitudeDirection: 0),
+  _NeighborDirection(latitudeDirection: 1, longitudeDirection: 1),
+  _NeighborDirection(latitudeDirection: 0, longitudeDirection: 1),
+  _NeighborDirection(latitudeDirection: -1, longitudeDirection: 1),
+  _NeighborDirection(latitudeDirection: -1, longitudeDirection: 0),
+  _NeighborDirection(latitudeDirection: -1, longitudeDirection: -1),
+  _NeighborDirection(latitudeDirection: 0, longitudeDirection: -1),
+  _NeighborDirection(latitudeDirection: 1, longitudeDirection: -1),
+];
+
 /// Returns all neighbors' geohash strings of given [geohash] clockwise,
 /// in the following order, north, east, south, and then west.
-List<String> neighborsOfGeohash(String geohash) {
+List<String> neighborsOfGeohash(final String geohash) {
   final coordinatesWithErrors = _decode(geohash);
-  return [
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 1,
-      neighborLongitudeDirection: 0,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 1,
-      neighborLongitudeDirection: 1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 0,
-      neighborLongitudeDirection: 1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: -1,
-      neighborLongitudeDirection: 1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: -1,
-      neighborLongitudeDirection: 0,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: -1,
-      neighborLongitudeDirection: -1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 0,
-      neighborLongitudeDirection: -1,
-    ),
-    _encodeNeighbor(
-      coordinatesWithErrors: coordinatesWithErrors,
-      geohash: geohash,
-      neighborLatitudeDirection: 1,
-      neighborLongitudeDirection: -1,
-    )
-  ];
+  return _clockwiseNeighborDirections
+      .map(
+        (final direction) =>
+            direction.encodeNeighbor(coordinatesWithErrors, geohash.length),
+      )
+      .toList();
 }
 
-/// Returns neighbor geohash of given [coordinatesWithErrors].
-String _encodeNeighbor({
-  required _CoordinatesWithErrors coordinatesWithErrors,
-  required String geohash,
-  required double neighborLatitudeDirection,
-  required double neighborLongitudeDirection,
-}) =>
-    encode(
+class _NeighborDirection {
+  const _NeighborDirection({
+    required this.latitudeDirection,
+    required this.longitudeDirection,
+  });
+
+  final int latitudeDirection;
+  final int longitudeDirection;
+
+  /// Returns neighbor geohash of given [coordinatesWithErrors].
+  String encodeNeighbor(
+    final _CoordinatesWithErrors coordinatesWithErrors,
+    final int geohashLength,
+  ) {
+    return encode(
       latitude: coordinatesWithErrors.latitude +
-          neighborLatitudeDirection * coordinatesWithErrors.latitudeError * 2,
+          latitudeDirection * coordinatesWithErrors.latitudeError * 2,
       longitude: coordinatesWithErrors.longitude +
-          neighborLongitudeDirection * coordinatesWithErrors.longitudeError * 2,
-      geohashLength: geohash.length,
+          longitudeDirection * coordinatesWithErrors.longitudeError * 2,
+      geohashLength: geohashLength,
     );
+  }
+}
 
 /// Returns geohash digits from [radius] in kilometers,
 /// which decide how precisely detect neighbors.
@@ -229,7 +207,7 @@ String _encodeNeighbor({
 /// * 7	≤ 153m x 153m
 /// * 8	≤ 38.2m x 19.1m
 /// * 9	≤ 4.77m x 4.77m
-int geohashDigitsFromRadius(double radius) {
+int geohashDigitsFromRadius(final double radius) {
   if (radius <= 0.00477) {
     return 9;
   } else if (radius <= 0.0382) {
@@ -252,30 +230,32 @@ int geohashDigitsFromRadius(double radius) {
 }
 
 /// The equatorial radius of the earth in meters.
-const double _earthEqRadius = 6378137;
+const double _earthEquatorialRadius = 6378137;
 
 /// The meridional radius of the earth in meters.
 const double _earthPolarRadius = 6357852.3;
 
-/// Returns distance between [to] and [from] in kilometers.
+/// Returns distance between [coordinates1] and [coordinates2] in kilometers.
 double distanceInKm({
-  required Coordinates from,
-  required Coordinates to,
+  required final Coordinates coordinates1,
+  required final Coordinates coordinates2,
 }) {
-  const radius = (_earthEqRadius + _earthPolarRadius) / 2;
-  final latDelta = _toRadians(to.latitude - from.latitude);
-  final lonDelta = _toRadians(to.longitude - from.longitude);
+  const radius = (_earthEquatorialRadius + _earthPolarRadius) / 2;
+  final latDelta = _toRadians(coordinates2.latitude - coordinates1.latitude);
+  final lonDelta = _toRadians(coordinates2.longitude - coordinates1.longitude);
 
   final a = (sin(latDelta / 2) * sin(latDelta / 2)) +
-      (cos(_toRadians(to.latitude)) *
-          cos(_toRadians(from.latitude)) *
+      (cos(_toRadians(coordinates2.latitude)) *
+          cos(_toRadians(coordinates1.latitude)) *
           sin(lonDelta / 2) *
           sin(lonDelta / 2));
   final distance = radius * 2 * atan2(sqrt(a), sqrt(1 - a)) / 1000;
   return double.parse(distance.toStringAsFixed(3));
 }
 
-double _toRadians(double num) => num * (pi / 180.0);
+double _toRadians(final double num) => num * (pi / 180.0);
+
+double _getMiddleOf(final double x1, final double x2) => (x1 + x2) / 2;
 
 class _DecodedBoundingBox extends Equatable {
   const _DecodedBoundingBox({

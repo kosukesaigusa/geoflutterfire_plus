@@ -6,19 +6,20 @@ analyzer:
     strict-raw-types: true
   errors:
     included_file_warning: ignore
+    invalid_use_of_visible_for_testing_member: error
 
 linter:
   rules:
+    avoid_final_parameters: false
     discarded_futures: false
     combinators_ordering: false
     eol_at_end_of_file: false
     no_leading_underscores_for_local_identifiers: false
     one_member_abstracts: false
-    prefer_final_parameters: false
     diagnostic_describe_all_properties: false
     prefer_double_quotes: false
     always_specify_types: false
-    unnecessary_final: false.
+    unnecessary_final: false
     prefer_expression_function_bodies: false
     always_put_required_named_parameters_first: false
     flutter_style_todos: false

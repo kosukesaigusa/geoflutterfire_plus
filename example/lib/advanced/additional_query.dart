@@ -68,7 +68,7 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
               infoWindow: InfoWindow(title: name),
               onTap: () async {
                 final geoFirePoint = GeoFirePoint(latitude, longitude);
-                showDialog<void>(
+                await showDialog<void>(
                   context: context,
                   builder: (context) => SetOrDeleteLocationDialog(
                     id: id,

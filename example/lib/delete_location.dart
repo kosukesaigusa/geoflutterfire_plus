@@ -23,24 +23,23 @@ class DeleteLocationDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('name:${name}'),
+          Text('name: $name'),
           const SizedBox(height: 8),
-          Text('latitude:${geoFirePoint.latitude}'),
+          Text('latitude: ${geoFirePoint.latitude}'),
           const SizedBox(height: 8),
-          Text('longitude:${geoFirePoint.longitude}'),
+          Text('longitude: ${geoFirePoint.longitude}'),
           const SizedBox(height: 8),
           Align(
-            alignment: Alignment.center,
             child: ElevatedButton(
               onPressed: () async {
+                final navigator = Navigator.of(context);
                 try {
                   await _deleteLocation(id);
                 } on Exception catch (e) {
                   debugPrint(
-                      '🚨 An exception occurred when adding location data'
-                      '${e.toString()}');
+                    '🚨 An exception occurred when adding location data $e',
+                  );
                 }
-                final navigator = Navigator.of(context);
                 navigator.popUntil((route) => route.isFirst);
               },
               child: const Text('Delete'),

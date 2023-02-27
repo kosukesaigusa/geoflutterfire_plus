@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../geoflutterfire_plus.dart';
@@ -6,37 +7,46 @@ import 'math.dart';
 
 /// Extended cloud_firestore [CollectionReference] for geo query features.
 class GeoCollectionReference<T> {
-  GeoCollectionReference(CollectionReference<T> collectionReference)
-      : _collectionReference = collectionReference;
+  /// Instantiates [GeoCollectionReference].
+  GeoCollectionReference(
+    final CollectionReference<T> collectionReference, {
+    @visibleForTesting final String rangeQueryEndAtCharacter = '{',
+  })  : _collectionReference = collectionReference,
+        _rangeQueryEndAtCharacter = rangeQueryEndAtCharacter;
 
   /// [CollectionReference] of target collection.
   final CollectionReference<T> _collectionReference;
+
+  /// A character added to Firestore string range query endAt.
+  /// About Firestore range queries, see:
+  /// https://firebase.google.com/docs/database/rest/retrieve-data#section-complex-queries
+  final String _rangeQueryEndAtCharacter;
 
   /// Detection range buffer when not strict mode.
   static const _detectionRangeBuffer = 1.02;
 
   /// Creates a document with provided [data].
-  Future<DocumentReference<T>> add(T data) => _collectionReference.add(data);
+  Future<DocumentReference<T>> add(final T data) =>
+      _collectionReference.add(data);
 
   /// Deletes the document from the collection.
-  Future<void> delete(String id) => _collectionReference.doc(id).delete();
+  Future<void> delete(final String id) => _collectionReference.doc(id).delete();
 
   /// Sets the provided [data] on the document.
   Future<void> setDocument({
-    required String id,
-    required T data,
-    bool merge = false,
+    required final String id,
+    required final T data,
+    final bool merge = false,
   }) =>
       _collectionReference.doc(id).set(data, SetOptions(merge: merge));
-
 
   /// Sets or updates the pair of ([latitude], [longitude]) as cloud_firestore
   /// [GeoPoint] and geohash string on the document's given [field].
   Future<void> setPoint({
-    required String id,
-    required String field,
-    required double latitude,
-    required double longitude,
+    required final String id,
+    required final String field,
+    required final double latitude,
+    required final double longitude,
   }) =>
       // Note: Remove type to enable to set the values as `Map`.
       // ignore: unnecessary_cast
@@ -57,12 +67,12 @@ class GeoCollectionReference<T> {
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
   Stream<List<DocumentSnapshot<T>>> subscribeWithin({
-    required GeoFirePoint center,
-    required double radiusInKm,
-    required String field,
-    required GeoPoint Function(T obj) geopointFrom,
-    Query<T>? Function(Query<T> query)? queryBuilder,
-    bool strictMode = false,
+    required final GeoFirePoint center,
+    required final double radiusInKm,
+    required final String field,
+    required final GeoPoint Function(T obj) geopointFrom,
+    final Query<T>? Function(Query<T> query)? queryBuilder,
+    final bool strictMode = false,
   }) =>
       subscribeWithinWithDistance(
         center: center,
@@ -72,8 +82,9 @@ class GeoCollectionReference<T> {
         queryBuilder: queryBuilder,
         strictMode: strictMode,
       ).map(
-        (snapshots) =>
-            snapshots.map((snapshot) => snapshot.documentSnapshot).toList(),
+        (final snapshots) => snapshots
+            .map((final snapshot) => snapshot.documentSnapshot)
+            .toList(),
       );
 
   /// Subscribes geo query results with distance from center in kilometers
@@ -89,12 +100,12 @@ class GeoCollectionReference<T> {
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
   Stream<List<GeoDocumentSnapshot<T>>> subscribeWithinWithDistance({
-    required GeoFirePoint center,
-    required double radiusInKm,
-    required String field,
-    required GeoPoint Function(T obj) geopointFrom,
-    Query<T>? Function(Query<T> query)? queryBuilder,
-    bool strictMode = false,
+    required final GeoFirePoint center,
+    required final double radiusInKm,
+    required final String field,
+    required final GeoPoint Function(T obj) geopointFrom,
+    final Query<T>? Function(Query<T> query)? queryBuilder,
+    final bool strictMode = false,
   }) {
     final collectionStreams = _collectionStreams(
       center: center,
@@ -106,10 +117,10 @@ class GeoCollectionReference<T> {
     final mergedCollectionStreams = _mergeCollectionStreams(collectionStreams);
 
     final filteredGeoDocumentSnapshots =
-        mergedCollectionStreams.map((queryDocumentSnapshots) {
+        mergedCollectionStreams.map((final queryDocumentSnapshots) {
       final geoDocumentSnapshots = queryDocumentSnapshots
           .map(
-            (queryDocumentSnapshot) =>
+            (final queryDocumentSnapshot) =>
                 _nullableGeoDocumentSnapshotFromQueryDocumentSnapshot(
               queryDocumentSnapshot: queryDocumentSnapshot,
               geopointFrom: geopointFrom,
@@ -122,7 +133,7 @@ class GeoCollectionReference<T> {
       // Filter fetched geoDocumentSnapshots by distance from center point on
       // client side if strict mode.
       final filteredList = geoDocumentSnapshots.where(
-        (geoDocumentSnapshot) =>
+        (final geoDocumentSnapshot) =>
             !strictMode ||
             geoDocumentSnapshot.distanceFromCenterInKm <=
                 radiusInKm * _detectionRangeBuffer,
@@ -131,7 +142,7 @@ class GeoCollectionReference<T> {
       // Returns sorted list by distance from center point.
       return filteredList.toList()
         ..sort(
-          (a, b) =>
+          (final a, final b) =>
               (a.distanceFromCenterInKm * 1000).toInt() -
               (b.distanceFromCenterInKm * 1000).toInt(),
         );
@@ -151,12 +162,12 @@ class GeoCollectionReference<T> {
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
   Future<List<DocumentSnapshot<T>>> fetchWithin({
-    required GeoFirePoint center,
-    required double radiusInKm,
-    required String field,
-    required GeoPoint Function(T obj) geopointFrom,
-    Query<T>? Function(Query<T> query)? queryBuilder,
-    bool strictMode = false,
+    required final GeoFirePoint center,
+    required final double radiusInKm,
+    required final String field,
+    required final GeoPoint Function(T obj) geopointFrom,
+    final Query<T>? Function(Query<T> query)? queryBuilder,
+    final bool strictMode = false,
   }) async {
     final geoDocumentSnapshots = await fetchWithinWithDistance(
       center: center,
@@ -167,7 +178,7 @@ class GeoCollectionReference<T> {
       strictMode: strictMode,
     );
     return geoDocumentSnapshots
-        .map((snapshot) => snapshot.documentSnapshot)
+        .map((final snapshot) => snapshot.documentSnapshot)
         .toList();
   }
 
@@ -184,12 +195,12 @@ class GeoCollectionReference<T> {
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
   Future<List<GeoDocumentSnapshot<T>>> fetchWithinWithDistance({
-    required GeoFirePoint center,
-    required double radiusInKm,
-    required String field,
-    required GeoPoint Function(T obj) geopointFrom,
-    Query<T>? Function(Query<T> query)? queryBuilder,
-    bool strictMode = false,
+    required final GeoFirePoint center,
+    required final double radiusInKm,
+    required final String field,
+    required final GeoPoint Function(T obj) geopointFrom,
+    final Query<T>? Function(Query<T> query)? queryBuilder,
+    final bool strictMode = false,
   }) async {
     final collectionFutures = _collectionFutures(
       center: center,
@@ -202,7 +213,7 @@ class GeoCollectionReference<T> {
 
     final geoDocumentSnapshots = mergedCollections
         .map(
-          (queryDocumentSnapshot) =>
+          (final queryDocumentSnapshot) =>
               _nullableGeoDocumentSnapshotFromQueryDocumentSnapshot(
             queryDocumentSnapshot: queryDocumentSnapshot,
             geopointFrom: geopointFrom,
@@ -215,7 +226,7 @@ class GeoCollectionReference<T> {
     // client side if strict mode.
     final filteredList = geoDocumentSnapshots
         .where(
-          (geoDocumentSnapshot) =>
+          (final geoDocumentSnapshot) =>
               !strictMode ||
               geoDocumentSnapshot.distanceFromCenterInKm <=
                   radiusInKm * _detectionRangeBuffer,
@@ -223,7 +234,7 @@ class GeoCollectionReference<T> {
         .toList()
       // sort list by distance from center point.
       ..sort(
-        (a, b) =>
+        (final a, final b) =>
             (a.distanceFromCenterInKm * 1000).toInt() -
             (b.distanceFromCenterInKm * 1000).toInt(),
       );
@@ -233,19 +244,18 @@ class GeoCollectionReference<T> {
   /// Returns stream of [QueryDocumentSnapshot]s of neighbor and center
   /// Geohashes.
   List<Stream<List<QueryDocumentSnapshot<T>>>> _collectionStreams({
-    required double radiusInKm,
-    required GeoFirePoint center,
-    required String field,
-    Query<T>? Function(Query<T> query)? queryBuilder,
+    required final double radiusInKm,
+    required final GeoFirePoint center,
+    required final String field,
+    final Query<T>? Function(Query<T> query)? queryBuilder,
   }) {
     return _geohashes(radiusInKm: radiusInKm, center: center)
         .map(
-          (geohash) => _query(queryBuilder)
-              .orderBy('$field.geohash')
-              .startAt([geohash])
-              .endAt(['$geohash~'])
-              .snapshots()
-              .map((querySnapshot) => querySnapshot.docs),
+          (final geohash) => geoQuery(
+            field: field,
+            geohash: geohash,
+            queryBuilder: queryBuilder,
+          ).snapshots().map((final querySnapshot) => querySnapshot.docs),
         )
         .toList();
   }
@@ -253,16 +263,18 @@ class GeoCollectionReference<T> {
   /// Returns future of [QueryDocumentSnapshot]s of neighbor and center
   /// Geohashes.
   List<Future<List<QueryDocumentSnapshot<T>>>> _collectionFutures({
-    required double radiusInKm,
-    required GeoFirePoint center,
-    required String field,
-    Query<T>? Function(Query<T> query)? queryBuilder,
+    required final double radiusInKm,
+    required final GeoFirePoint center,
+    required final String field,
+    final Query<T>? Function(Query<T> query)? queryBuilder,
   }) {
     return _geohashes(radiusInKm: radiusInKm, center: center).map(
-      (geohash) async {
-        final querySnapshot = await _query(queryBuilder)
-            .orderBy('$field.geohash')
-            .startAt([geohash]).endAt(['$geohash~']).get();
+      (final geohash) async {
+        final querySnapshot = await geoQuery(
+          field: field,
+          geohash: geohash,
+          queryBuilder: queryBuilder,
+        ).get();
         return querySnapshot.docs;
       },
     ).toList();
@@ -270,8 +282,8 @@ class GeoCollectionReference<T> {
 
   /// Returns neighbor and center geohash strings.
   List<String> _geohashes({
-    required double radiusInKm,
-    required GeoFirePoint center,
+    required final double radiusInKm,
+    required final GeoFirePoint center,
   }) {
     final precisionDigits = geohashDigitsFromRadius(radiusInKm);
     final centerGeohash = center.geohash.substring(0, precisionDigits);
@@ -281,13 +293,21 @@ class GeoCollectionReference<T> {
     ];
   }
 
-  /// Add query conditions, if queryBuilder parameter is given.
-  Query<T> _query(Query<T>? Function(Query<T> query)? queryBuilder) {
+  /// Returns geohash query, adding query conditions if queryBuilder parameter
+  /// is given.
+  @visibleForTesting
+  Query<T> geoQuery({
+    required final String field,
+    required final String geohash,
+    final Query<T>? Function(Query<T> query)? queryBuilder,
+  }) {
     Query<T> query = _collectionReference;
     if (queryBuilder != null) {
       query = queryBuilder(query)!;
     }
-    return query;
+    return query
+        .orderBy('$field.geohash')
+        .startAt([geohash]).endAt(['$geohash$_rangeQueryEndAtCharacter']);
   }
 
   /// Merge given list of collection streams by `Rx.combineLatest`.
@@ -309,12 +329,12 @@ class GeoCollectionReference<T> {
   /// // [1, 2, 3, 11, 12, 13]
   /// ```
   Stream<List<QueryDocumentSnapshot<T>>> _mergeCollectionStreams(
-    List<Stream<List<QueryDocumentSnapshot<T>>>> collectionStreams,
+    final List<Stream<List<QueryDocumentSnapshot<T>>>> collectionStreams,
   ) =>
       Rx.combineLatest<List<QueryDocumentSnapshot<T>>,
           List<QueryDocumentSnapshot<T>>>(
         collectionStreams,
-        (values) => [
+        (final values) => [
           for (final queryDocumentSnapshots in values)
             ...queryDocumentSnapshots,
         ],
@@ -322,14 +342,13 @@ class GeoCollectionReference<T> {
 
   /// Merge given list of collection futures.
   Future<List<QueryDocumentSnapshot<T>>> _mergeCollectionFutures(
-      List<Future<List<QueryDocumentSnapshot<T>>>> collectionFutures) async {
+    final List<Future<List<QueryDocumentSnapshot<T>>>> collectionFutures,
+  ) async {
     final mergedQueryDocumentSnapshots = <QueryDocumentSnapshot<T>>[];
     await Future.forEach<Future<List<QueryDocumentSnapshot<T>>>>(
-        collectionFutures, (values) async {
+        collectionFutures, (final values) async {
       final queryDocumentSnapshots = await values;
-      queryDocumentSnapshots.forEach((queryDocumentSnapshot) {
-        mergedQueryDocumentSnapshots.add(queryDocumentSnapshot);
-      });
+      queryDocumentSnapshots.forEach(mergedQueryDocumentSnapshots.add);
     });
     return mergedQueryDocumentSnapshots;
   }
@@ -337,9 +356,9 @@ class GeoCollectionReference<T> {
   /// Returns nullable [GeoDocumentSnapshot] from given [QueryDocumentSnapshot].
   GeoDocumentSnapshot<T>?
       _nullableGeoDocumentSnapshotFromQueryDocumentSnapshot({
-    required QueryDocumentSnapshot<T> queryDocumentSnapshot,
-    required GeoPoint Function(T obj) geopointFrom,
-    required GeoFirePoint center,
+    required final QueryDocumentSnapshot<T> queryDocumentSnapshot,
+    required final GeoPoint Function(T obj) geopointFrom,
+    required final GeoFirePoint center,
   }) {
     final exists = queryDocumentSnapshot.exists;
     if (!exists) {
@@ -361,6 +380,7 @@ class GeoCollectionReference<T> {
 /// A model to handle cloud_firestore [DocumentSnapshot] with distance from
 /// given center in kilometers.
 class GeoDocumentSnapshot<T> {
+  /// Instantiates [GeoDocumentSnapshot].
   GeoDocumentSnapshot({
     required this.documentSnapshot,
     required this.distanceFromCenterInKm,

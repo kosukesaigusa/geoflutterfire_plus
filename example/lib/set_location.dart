@@ -42,8 +42,8 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Center(
-        child: const Text('Enter location data'),
+      title: const Center(
+        child: Text('Enter location data'),
       ),
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -84,6 +84,7 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
+              final navigator = Navigator.of(context);
               final name = _nameEditingController.value.text;
               if (name.isEmpty) {
                 throw Exception('Enter valid name');
@@ -94,7 +95,8 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
                   double.tryParse(_longitudeEditingController.text);
               if (newLatitude == null || newLongitude == null) {
                 throw Exception(
-                    'Enter valid values as latitude and longitude.');
+                  'Enter valid values as latitude and longitude.',
+                );
               }
               try {
                 await _set(
@@ -104,10 +106,10 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
                   newLongitude,
                 );
               } on Exception catch (e) {
-                debugPrint('🚨 An exception occurred when adding location data'
-                    '${e.toString()}');
+                debugPrint(
+                  '🚨 An exception occurred when adding location data $e',
+                );
               }
-              final navigator = Navigator.of(context);
               navigator.popUntil((route) => route.isFirst);
             },
             child: const Text('Set location data'),
@@ -127,16 +129,19 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
     final geoFirePoint = GeoFirePoint(newLatitude, newLongitude);
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection('locations'),
-    ).setDocument(id: id, data: {
-      'geo': geoFirePoint.data,
-      'name': name,
-      'isVisible': true,
-    });
+    ).setDocument(
+      id: id,
+      data: {
+        'geo': geoFirePoint.data,
+        'name': name,
+        'isVisible': true,
+      },
+    );
     debugPrint(
       '🌍 Location data is successfully set: '
-      'id: ${id}'
-      'latitude: ${newLatitude}'
-      'longitude: ${newLongitude}',
+      'id: $id'
+      'latitude: $newLatitude'
+      'longitude: $newLongitude',
     );
   }
 }
