@@ -26,16 +26,14 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ElevatedButton(
-            onPressed: () {
-              showDialog<void>(
+            onPressed: () => showDialog<void>(
                 context: context,
                 builder: (context) => SetLocationDialog(
                   id: id,
                   name: name,
                   geoFirePoint: geoFirePoint,
                 ),
-              );
-            },
+              ),
             child: Text('set location'),
           ),
           const SizedBox(height: 16),
