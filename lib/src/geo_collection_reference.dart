@@ -7,7 +7,7 @@ import 'math.dart';
 
 /// Extended cloud_firestore [CollectionReference] for geo query features.
 class GeoCollectionReference<T> {
-  /// Instantiate [GeoCollectionReference].
+  /// Instantiates [GeoCollectionReference].
   GeoCollectionReference(
     final CollectionReference<T> collectionReference, {
     @visibleForTesting final String rangeQueryEndAtCharacter = '{',
@@ -380,6 +380,7 @@ class GeoCollectionReference<T> {
 /// A model to handle cloud_firestore [DocumentSnapshot] with distance from
 /// given center in kilometers.
 class GeoDocumentSnapshot<T> {
+  /// Instantiates [GeoDocumentSnapshot].
   GeoDocumentSnapshot({
     required this.documentSnapshot,
     required this.distanceFromCenterInKm,

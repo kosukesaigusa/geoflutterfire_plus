@@ -5,7 +5,7 @@ import 'math.dart';
 
 /// A model corresponds to Cloud Firestore as geopoint field.
 class GeoFirePoint {
-  /// Instantiate [GeoFirePoint].
+  /// Instantiates [GeoFirePoint].
   GeoFirePoint(this.latitude, this.longitude);
 
   /// Latitude of the location.
@@ -44,6 +44,7 @@ class GeoFirePoint {
 
 /// Describes coordinates (location) by ([latitude], [longitude]).
 class Coordinates extends Equatable {
+  /// Instantiates [Coordinates].
   const Coordinates(this.latitude, this.longitude);
 
   /// Latitude of the location.
