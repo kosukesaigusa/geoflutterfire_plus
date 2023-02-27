@@ -39,7 +39,7 @@ class App extends StatelessWidget {
 }
 
 /// Tokyo Station location for demo.
-const tokyoStation = LatLng(35.681236, 139.767125);
+const _tokyoStation = LatLng(35.681236, 139.767125);
 
 /// Reference to the collection where the location data is stored.
 /// `withConverter` is available to type-safely define [CollectionReference].
@@ -129,8 +129,8 @@ class ExampleState extends State<Example> {
 
   /// Google Maps initial target position.
   static final LatLng _initialTarget = LatLng(
-    tokyoStation.latitude,
-    tokyoStation.longitude,
+    _tokyoStation.latitude,
+    _tokyoStation.longitude,
   );
 
   /// Google Maps initial camera position.

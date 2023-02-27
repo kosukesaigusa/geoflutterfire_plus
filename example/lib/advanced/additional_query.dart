@@ -10,6 +10,9 @@ import '../set_or_delete_location.dart';
 import 'entity.dart';
 import 'utils.dart';
 
+/// Tokyo Station location for demo.
+const _tokyoStation = LatLng(35.681236, 139.767125);
+
 class AdditionalQueryExample extends StatefulWidget {
   const AdditionalQueryExample({super.key});
 
@@ -91,8 +94,8 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
 
   /// Google Maps initial target position.
   static final LatLng _initialTarget = LatLng(
-    tokyoStation.latitude,
-    tokyoStation.longitude,
+    _tokyoStation.latitude,
+    _tokyoStation.longitude,
   );
 
   /// Google Maps initial camera position.
