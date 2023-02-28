@@ -38,7 +38,6 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
             ),
             child: const Text('set location'),
           ),
-          // child: const Text('set location'),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => showDialog<void>(
