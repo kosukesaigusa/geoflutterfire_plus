@@ -38,7 +38,9 @@ class AddLocationDialogState extends State<AddLocationDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Enter location data'),
+      title: const Center(
+        child: Text('Enter location data'),
+      ),
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,

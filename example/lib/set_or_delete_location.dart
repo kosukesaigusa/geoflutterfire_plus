@@ -20,36 +20,34 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Enter location data'),
+      title: const Center(
+        child: Text('Enter location data'),
+      ),
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           ElevatedButton(
-            onPressed: () {
-              showDialog<void>(
-                context: context,
-                builder: (context) => SetLocationDialog(
-                  id: id,
-                  name: name,
-                  geoFirePoint: geoFirePoint,
-                ),
-              );
-            },
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (_) => SetLocationDialog(
+                id: id,
+                name: name,
+                geoFirePoint: geoFirePoint,
+              ),
+            ),
             child: const Text('set location'),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {
-              showDialog<void>(
-                context: context,
-                builder: (context) => DeleteLocationDialog(
-                  id: id,
-                  name: name,
-                  geoFirePoint: geoFirePoint,
-                ),
-              );
-            },
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (_) => DeleteLocationDialog(
+                id: id,
+                name: name,
+                geoFirePoint: geoFirePoint,
+              ),
+            ),
             child: const Text('delete location'),
           ),
         ],

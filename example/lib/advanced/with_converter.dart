@@ -10,6 +10,9 @@ import '../set_or_delete_location.dart';
 import 'entity.dart';
 import 'utils.dart';
 
+/// Tokyo Station location for demo.
+const _tokyoStation = LatLng(35.681236, 139.767125);
+
 class WithConverterExample extends StatefulWidget {
   const WithConverterExample({super.key});
 
@@ -88,9 +91,15 @@ class WithConverterExampleState extends State<WithConverterExample> {
   /// Google Maps initial camera zoom level.
   static const double _initialZoom = 14;
 
+  /// Google Maps initial target position.
+  static final LatLng _initialTarget = LatLng(
+    _tokyoStation.latitude,
+    _tokyoStation.longitude,
+  );
+
   /// Google Maps initial camera position.
   static final _initialCameraPosition = CameraPosition(
-    target: LatLng(tokyoStation.latitude, tokyoStation.longitude),
+    target: _initialTarget,
     zoom: _initialZoom,
   );
 
@@ -143,68 +152,61 @@ class WithConverterExampleState extends State<WithConverterExample> {
                 radiusInKm: _radiusInKm,
               );
             },
-            onLongPress: (latLng) {
-              showDialog<void>(
-                context: context,
-                builder: (context) => AddLocationDialog(latLng: latLng),
-              );
-            },
+            onLongPress: (latLng) => showDialog<void>(
+              context: context,
+              builder: (context) => AddLocationDialog(latLng: latLng),
+            ),
           ),
-          Positioned(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(top: 64, left: 16, right: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Colors.black38,
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(top: 64, left: 16, right: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Colors.black38,
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Debug window',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Debug window',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Currently detected count: '
-                      '${_markers.length}',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Current radius: '
-                      '${_radiusInKm.toStringAsFixed(1)} (km)',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    const SizedBox(height: 8),
-                    Slider(
-                      value: _radiusInKm,
-                      min: 1,
-                      max: 100,
-                      divisions: 99,
-                      label: _radiusInKm.toStringAsFixed(1),
-                      onChanged: (value) {
-                        _radiusInKm = value;
-                        _subscription = _geoQuerySubscription(
-                          latitude: _cameraPosition.target.latitude,
-                          longitude: _cameraPosition.target.longitude,
-                          radiusInKm: _radiusInKm,
-                        );
-                        setState(() {});
-                      },
-                    ),
-                  ],
+                const SizedBox(height: 8),
+                Text(
+                  'Currently detected count: '
+                  '${_markers.length}',
+                  style: const TextStyle(color: Colors.white),
                 ),
-              ),
+                const SizedBox(height: 8),
+                Text(
+                  'Current radius: '
+                  '${_radiusInKm.toStringAsFixed(1)} (km)',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                Slider(
+                  value: _radiusInKm,
+                  min: 1,
+                  max: 100,
+                  divisions: 99,
+                  label: _radiusInKm.toStringAsFixed(1),
+                  onChanged: (value) {
+                    _radiusInKm = value;
+                    _subscription = _geoQuerySubscription(
+                      latitude: _cameraPosition.target.latitude,
+                      longitude: _cameraPosition.target.longitude,
+                      radiusInKm: _radiusInKm,
+                    );
+                    setState(() {});
+                  },
+                ),
+              ],
             ),
           ),
         ],
