@@ -1,36 +1,36 @@
 # geoflutterfire_plus 🌍
 
-geoflutterfire_plus allows your flutter apps to query geographic data saved in Cloud Firestore.
+Geoflutterfire_plus allows your apps made by Flutter to query geographic data saved in Cloud Firestore.
 
-This package is fork from [GeoFlutterFire](https://github.com/DarshanGowda0/GeoFlutterFire), and tried to be constantly maintained to work with latest Flutter SDK, Dart SDK, and other dependency packages.
+This package is forked from [GeoFlutterFire](https://github.com/DarshanGowda0/GeoFlutterFire), and we will try to be constantly maintained to work with latest Flutter SDK, Dart SDK, and other dependency packages.
 
-## Prerequisites
+## Getting Started
+Prerequisites is folloing.
 
 ```plain
 Dart: '>=2.17.0 <3.0.0'
 Flutter: '>=2.10.0'
 ```
 
-## Installing
-
-Run this command:
+Run this command in your project.
 
 ```shell
 flutter pub add geoflutterfire_plus
 ```
 
-Or add dependency to your `pubspec.yaml`.
+Or, add dependency to your `pubspec.yaml`.
 
 ```yaml
 dependencies:
   geoflutterfire_plus: <latest-version>
 ```
 
-## Geo queries
+## What is Geohash?
 
 Refer to Firebase official document [Geo queries](https://firebase.google.com/docs/firestore/solutions/geoqueries) to understand what Geohash is, why you need to save geo location as Geohash, and how to query them. It will also help you understand limitations of using Geohashes for querying locations.
 
-## Save geo data
+## How To Use?
+### Save geo data
 
 In order to save geo data as documents of Cloud Firestore, use `GeoFirePoint`. `GeoFirePoint.data` gives geopoint (`GeoPoint` type defined in `cloud_firestore` package) and Geohash string.
 
@@ -88,11 +88,11 @@ GeoCollectionReference(FirebaseFirestore.instance.collection('locations'))
 );
 ```
 
-## Query geo data
+### Query geo data
 
-In order to query location documents within a 50km radius of Tokyo station, you will write query like the following:
+In order to query location documents within a 50 km radius of a point, you will write query like the following; (In the example below, Tokyo Station is set as the location.)
 
-### Basic query
+#### Basic query
 
 ```dart
 // Center of the geo query.
@@ -127,7 +127,7 @@ final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
 );
 ```
 
-### Using `withConverter`
+#### Using `withConverter`
 
 If you would like to use `withConverter` to type-safely write query, first, you need to define its entity class and factory constructors.
 
@@ -209,7 +209,7 @@ final Stream<List<DocumentSnapshot<Location>>> stream =
 );
 ```
 
-### Custom query conditions
+#### Custom query conditions
 
 If you would like to add custom query conditions, `queryBuilder` parameter of `within` method is available.
 
@@ -238,3 +238,6 @@ final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
   queryBuilder: queryBuilder,
 );
 ```
+
+## How To Use Example
+If you would like to try out the features of geoflutterfire_plus, you can do so in the example.
