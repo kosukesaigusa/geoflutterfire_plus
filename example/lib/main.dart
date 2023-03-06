@@ -232,7 +232,7 @@ class ExampleState extends State<Example> {
                   max: 100,
                   divisions: 99,
                   label: _radiusInKm.toStringAsFixed(1),
-                  onChanged: (double value) {
+                  onChanged: (value) {
                     _radiusInKm = value;
                     _subscription = _geoQuerySubscription(
                       latitude: _cameraPosition.target.latitude,
