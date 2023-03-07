@@ -22,9 +22,6 @@ class GeoFirePoint {
   /// Returns [GeoPoint] of [GeoFirePoint].
   GeoPoint get geopoint => GeoPoint(latitude, longitude);
 
-  /// Returns [GeoPoint]  of [GeoFirePoint].
-  GeoPoint get geoPoint => GeoPoint(latitude, longitude);
-
   /// Returns distance in kilometers between [GeoFirePoint] and given
   /// ([latitude], [longitude]).
   double distanceBetweenInKm({
