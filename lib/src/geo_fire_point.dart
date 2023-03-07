@@ -22,15 +22,14 @@ class GeoFirePoint {
   /// Returns [GeoPoint] of [GeoFirePoint].
   GeoPoint get geopoint => GeoPoint(latitude, longitude);
 
-  /// Returns distance in kilometers between [GeoFirePoint] and given
-  /// ([latitude], [longitude]).
+  /// Returns distance in kilometers between [GeoFirePoint]
+  /// and given [geopoint].
   double distanceBetweenInKm({
-    required final double latitude,
-    required final double longitude,
+    required final GeoPoint geopoint,
   }) =>
       distanceInKm(
-        geoPoint1: geoPoint,
-        geoPoint2: GeoPoint(latitude, longitude),
+        geoPoint1: this.geopoint,
+        geoPoint2: geopoint,
       );
 
   /// Returns [geopoint] and [geohash] as Map<String, dynamic>. Can be used when
