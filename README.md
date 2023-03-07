@@ -4,11 +4,11 @@
 [![MIT License][license-badge]][license]
 [![PRs Welcome][prs-badge]](https://makeapullrequest.com)
 
-![example](https://user-images.githubusercontent.com/13669049/223426938-392e3c65-fe92-4a7c-aad8-82ae6d296bce.gif)
-
 geoflutterfire_plus allows your flutter apps to query geographic data saved in Cloud Firestore.
 
 This package is fork from [GeoFlutterFire](https://github.com/DarshanGowda0/GeoFlutterFire), and tried to be constantly maintained to work with latest Flutter SDK, Dart SDK, and other dependency packages.
+
+![example](https://user-images.githubusercontent.com/13669049/223426938-392e3c65-fe92-4a7c-aad8-82ae6d296bce.gif)
 
 ## Prerequisites
 
@@ -246,6 +246,7 @@ final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
 ```
 
 [version-badge]: https://img.shields.io/pub/v/geoflutterfire_plus.svg
+[package]: https://pub.dartlang.org/packages/geoflutterfire_plus
 [license-badge]: https://img.shields.io/github/license/KosukeSaigusa/geoflutterfire_plus.svg
 [license]: https://github.com/KosukeSaigusa/geoflutterfire_plus/blob/master/LICENSE
 [prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
