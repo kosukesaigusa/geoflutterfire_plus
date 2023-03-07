@@ -366,10 +366,8 @@ class GeoCollectionReference<T> {
     }
     final fetchedData = queryDocumentSnapshot.data();
     final fetchedGeopoint = geopointFrom(fetchedData);
-    final distanceFromCenterInKm = center.distanceBetweenInKm(
-      latitude: fetchedGeopoint.latitude,
-      longitude: fetchedGeopoint.longitude,
-    );
+    final distanceFromCenterInKm =
+        center.distanceBetweenInKm(geopoint: fetchedGeopoint);
     return GeoDocumentSnapshot(
       documentSnapshot: queryDocumentSnapshot,
       distanceFromCenterInKm: distanceFromCenterInKm,

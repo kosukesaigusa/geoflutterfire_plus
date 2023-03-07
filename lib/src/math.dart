@@ -233,18 +233,18 @@ const double _earthEquatorialRadius = 6378137;
 /// The meridional radius of the earth in meters.
 const double _earthPolarRadius = 6357852.3;
 
-/// Returns distance between [geoPoint1] and [geoPoint2] in kilometers.
+/// Returns distance between [geopoint1] and [geopoint2] in kilometers.
 double distanceInKm({
-  required final GeoPoint geoPoint1,
-  required final GeoPoint geoPoint2,
+  required final GeoPoint geopoint1,
+  required final GeoPoint geopoint2,
 }) {
   const radius = (_earthEquatorialRadius + _earthPolarRadius) / 2;
-  final latDelta = _toRadians(geoPoint2.latitude - geoPoint1.latitude);
-  final lonDelta = _toRadians(geoPoint2.longitude - geoPoint1.longitude);
+  final latDelta = _toRadians(geopoint2.latitude - geopoint1.latitude);
+  final lonDelta = _toRadians(geopoint2.longitude - geopoint1.longitude);
 
   final a = (sin(latDelta / 2) * sin(latDelta / 2)) +
-      (cos(_toRadians(geoPoint2.latitude)) *
-          cos(_toRadians(geoPoint1.latitude)) *
+      (cos(_toRadians(geopoint2.latitude)) *
+          cos(_toRadians(geopoint1.latitude)) *
           sin(lonDelta / 2) *
           sin(lonDelta / 2));
   final distance = radius * 2 * atan2(sqrt(a), sqrt(1 - a)) / 1000;
