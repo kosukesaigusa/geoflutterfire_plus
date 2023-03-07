@@ -28,8 +28,8 @@ class GeoFirePoint {
     required final GeoPoint geopoint,
   }) =>
       distanceInKm(
-        geoPoint1: this.geopoint,
-        geoPoint2: geopoint,
+        geopoint1: this.geopoint,
+        geopoint2: geopoint,
       );
 
   /// Returns [geopoint] and [geohash] as Map<String, dynamic>. Can be used when
