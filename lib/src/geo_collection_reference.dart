@@ -66,6 +66,7 @@ class GeoCollectionReference<T> {
   /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
+  /// * [asBroadcastStream] Whether to return geo query results as broadcast.
   Stream<List<DocumentSnapshot<T>>> subscribeWithin({
     required final GeoFirePoint center,
     required final double radiusInKm,
@@ -73,6 +74,7 @@ class GeoCollectionReference<T> {
     required final GeoPoint Function(T obj) geopointFrom,
     final Query<T>? Function(Query<T> query)? queryBuilder,
     final bool strictMode = false,
+    final bool asBroadcastStream = false,
   }) =>
       subscribeWithinWithDistance(
         center: center,
@@ -99,6 +101,7 @@ class GeoCollectionReference<T> {
   /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
+  /// * [asBroadcastStream] Whether to return geo query results as broadcast.
   Stream<List<GeoDocumentSnapshot<T>>> subscribeWithinWithDistance({
     required final GeoFirePoint center,
     required final double radiusInKm,
@@ -106,6 +109,7 @@ class GeoCollectionReference<T> {
     required final GeoPoint Function(T obj) geopointFrom,
     final Query<T>? Function(Query<T> query)? queryBuilder,
     final bool strictMode = false,
+    final bool asBroadcastStream = false,
   }) {
     final collectionStreams = _collectionStreams(
       center: center,
@@ -147,7 +151,10 @@ class GeoCollectionReference<T> {
               (b.distanceFromCenterInKm * 1000).toInt(),
         );
     });
-    return filteredGeoDocumentSnapshots.asBroadcastStream();
+    if (asBroadcastStream) {
+      return filteredGeoDocumentSnapshots.asBroadcastStream();
+    }
+    return filteredGeoDocumentSnapshots;
   }
 
   /// Fetches geo query results by given conditions.
