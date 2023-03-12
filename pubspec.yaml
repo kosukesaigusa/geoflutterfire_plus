@@ -1,5 +1,5 @@
 name: geoflutterfire_plus
-description: geoflutterfire_plus enable your flutter app to store and query cloud firestore documents based on their geographic location.
+description: geoflutterfire_plus enables your flutter app to store and query cloud firestore documents based on their geographic location.
 version: 0.0.3
 homepage: https://github.com/KosukeSaigusa/geoflutterfire_plus
 
@@ -8,7 +8,7 @@ environment:
   flutter: '>=2.10.0'
 
 dependencies:
-  cloud_firestore: ^4.4.3
+  cloud_firestore: ^4.4.4
   flutter:
     sdk: flutter
   rxdart: ^0.27.7
