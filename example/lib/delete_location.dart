@@ -50,12 +50,13 @@ class DeleteLocationDialog extends StatelessWidget {
     );
   }
 
+  /// Deletes location data from Cloud Firestore.
   Future<void> _deleteLocation(String id) async {
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection('locations'),
     ).delete(id);
     debugPrint(
-      '🌍 Location data is successfully delete: '
+      '🌍 Location data is successfully deleted: '
       'id: $id',
     );
   }
