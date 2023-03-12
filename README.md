@@ -41,10 +41,10 @@ Refer to Firebase official document [Geo queries](https://firebase.google.com/do
 In order to save geo data as documents of Cloud Firestore, use `GeoFirePoint`. `GeoFirePoint.data` gives geopoint (`GeoPoint` type defined in `cloud_firestore` package) and Geohash string.
 
 ```dart
-// Define GeoFirePoint instance by giving latitude and longitude.
-final GeoFirePoint geoFirePoint = GeoFirePoint(35.681236, 139.767125);
+// Define GeoFirePoint by instantiating GeoFirePoint with latitude and longitude.
+final GeoFirePoint geoFirePoint = GeoFirePoint(GeoPoint(35.681236, 139.767125));
 
-// Get GeoPoint instance and Geohash string as Map<String, dynamic>.
+// Gets GeoPoint instance and Geohash string as Map<String, dynamic>.
 final Map<String, dynamic> data = geoFirePoint.data;
 
 // {geopoint: Instance of 'GeoPoint', geohash: xn76urx66}
@@ -54,7 +54,7 @@ print(data);
 `GeoCollectionReference` instance provides `add` method to create a new document in the collection (internally, just calling `add` method of `cloud_firestore`).
 
 ```dart
-// Add new documents to locations collection.
+// Adds new documents to locations collection.
 GeoCollectionReference<Map<String, dynamic>>(
   FirebaseFirestore.instance.collection('locations'),
 ).add(<String, dynamic>{
@@ -67,10 +67,10 @@ GeoCollectionReference<Map<String, dynamic>>(
 Or, you can just call `add` or `set` method of `cloud_firestore` to save the data. For example,
 
 ```dart
-// Add new documents to locations collection.
+// Adds new documents to locations collection.
 FirebaseFirestore.instance.collection('locations').add(
   <String, dynamic>{
-    'geo': data,
+    'geo': geoFirePoint.data,
     'name': 'Tokyo Station',
     'isVisible': true,
   },
@@ -81,16 +81,27 @@ The created document would be like the screenshot below. Geohash string (`geohas
 
 ![Cloud Firestore](https://user-images.githubusercontent.com/13669049/210048071-e437839c-f1da-4307-b5ad-63aeba2b30e9.png)
 
-In order to set or update the pair of latitude and longitude as `cloud_firestore` GeoPoint and Geohash string on the specified document's given field, `GeoCollectionReference.setPoint` is available.
+In order to set or update the pair of latitude and longitude as `cloud_firestore` GeoPoint and also Geohash string on the specified document's given field, `GeoCollectionReference.set` or `GeoCollectionReference.updatePoint` methods are available.
 
 ```dart
-// Set or update geo field on the specified document.
+// Sets a new document giving geoFirePoint.data to 'geo' field.
+GeoCollectionReference(FirebaseFirestore.instance.collection('locations'))
+    .setPoint(
+  id: 'your-document-id',
+  data: {
+    'geo': geoFirePoint.data,
+    'foo': 'foo',
+    'bar': 'bar',
+  },
+  merge: true,
+);
+
+// Updates an existing document's 'geo' field by giving GeoPoint instance.
 GeoCollectionReference(FirebaseFirestore.instance.collection('locations'))
     .setPoint(
   id: 'your-document-id',
   field: 'geo',
-  latitude: 35.681236,
-  longitude: 139.767125,
+  geopoint: GeoPoint(35.681236, 139.767125),
 );
 ```
 
@@ -102,7 +113,7 @@ In order to query location documents within a 50km radius of Tokyo station, you 
 
 ```dart
 // Center of the geo query.
-final GeoFirePoint center = GeoFirePoint(35.681236, 139.767125);
+final GeoFirePoint center = GeoFirePoint(GeoPoint(35.681236, 139.767125));
 
 // Detection range from the center point.
 const double radiusInKm = 50;
