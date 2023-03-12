@@ -1,3 +1,8 @@
+## 0.0.4
+
+* Enables to specify whether to return geo query stream as broadcast.
+* Refactor `GeoFirePoint` class.
+
 ## 0.0.3
 
 * Fix a typo in pubspec.yaml homepage URL.
