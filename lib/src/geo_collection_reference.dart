@@ -29,31 +29,29 @@ class GeoCollectionReference<T> {
   Future<DocumentReference<T>> add(final T data) =>
       _collectionReference.add(data);
 
-  /// Deletes the document from the collection.
-  Future<void> delete(final String id) => _collectionReference.doc(id).delete();
-
   /// Sets the provided [data] on the document.
-  Future<void> setDocument({
+  Future<void> set({
     required final String id,
     required final T data,
     final bool merge = false,
   }) =>
       _collectionReference.doc(id).set(data, SetOptions(merge: merge));
 
-  /// Sets or updates the pair of ([latitude], [longitude]) as cloud_firestore
-  /// [GeoPoint] and geohash string on the document's given [field].
-  Future<void> setPoint({
+  /// Updates the [GeoPoint].data (i.e. [GeoPoint] geopoint and [String]
+  /// geohash) of specified document.
+  /// If you would like to update not only [GeoPoint].data but also other
+  /// fields, use [set] method by setting merge true.
+  Future<void> updatePoint({
     required final String id,
     required final String field,
-    required final double latitude,
-    required final double longitude,
-  }) =>
-      // Note: Remove type to enable to set the values as `Map`.
-      // ignore: unnecessary_cast
-      (_collectionReference.doc(id) as DocumentReference).set(
-        <String, dynamic>{field: GeoFirePoint(latitude, longitude).data},
-        SetOptions(merge: true),
-      );
+    required final GeoPoint geopoint,
+  }) async =>
+      (_collectionReference.doc(id)).update(<String, dynamic>{
+        field: GeoFirePoint(geopoint).data,
+      });
+
+  /// Deletes the document from the collection.
+  Future<void> delete(final String id) => _collectionReference.doc(id).delete();
 
   /// Subscribes geo query results by given conditions.
   ///
