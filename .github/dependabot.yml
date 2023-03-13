@@ -3,7 +3,27 @@ enable-beta-ecosystems: true
 updates:
   - package-ecosystem: "pub"
     directory: "/"
-    assignees:
-      - "KosukeSaigusa"
     schedule:
       interval: "daily"
+      time: "10:00"
+      timezone: "Asia/Tokyo"
+    reviewers:
+      - "KosukeSaigusa"
+
+	- package-ecosystem: "pub"
+    directory: "/exmaple"
+    schedule:
+      interval: "daily"
+      time: "10:00"
+      timezone: "Asia/Tokyo"
+    reviewers:
+      - "KosukeSaigusa"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "10:00"
+      timezone: "Asia/Tokyo"
+    reviewers:
+      - "KosukeSaigusa"
