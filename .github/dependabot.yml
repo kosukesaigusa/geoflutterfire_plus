@@ -9,8 +9,7 @@ updates:
       timezone: "Asia/Tokyo"
     assignees:
       - "KosukeSaigusa"
-
-	- package-ecosystem: "pub"
+  - package-ecosystem: "pub"
     directory: "/exmaple"
     schedule:
       interval: "daily"
@@ -18,7 +17,6 @@ updates:
       timezone: "Asia/Tokyo"
     assignees:
       - "KosukeSaigusa"
-
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
