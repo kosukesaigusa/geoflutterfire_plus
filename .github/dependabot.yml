@@ -7,7 +7,7 @@ updates:
       interval: "daily"
       time: "10:00"
       timezone: "Asia/Tokyo"
-    reviewers:
+    assignees:
       - "KosukeSaigusa"
 
 	- package-ecosystem: "pub"
@@ -16,7 +16,7 @@ updates:
       interval: "daily"
       time: "10:00"
       timezone: "Asia/Tokyo"
-    reviewers:
+    assignees:
       - "KosukeSaigusa"
 
   - package-ecosystem: "github-actions"
@@ -25,5 +25,5 @@ updates:
       interval: "daily"
       time: "10:00"
       timezone: "Asia/Tokyo"
-    reviewers:
+    assignees:
       - "KosukeSaigusa"
