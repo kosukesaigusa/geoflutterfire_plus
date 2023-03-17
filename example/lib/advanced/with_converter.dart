@@ -37,13 +37,12 @@ class WithConverterExampleState extends State<WithConverterExample> {
 
   /// Returns geo query [StreamSubscription] with listener.
   StreamSubscription<List<DocumentSnapshot<Location>>> _geoQuerySubscription({
-    required double latitude,
-    required double longitude,
+    required GeoPoint centerGeoPoint,
     required double radiusInKm,
   }) =>
       GeoCollectionReference(typedCollectionReference)
           .subscribeWithin(
-        center: GeoFirePoint(latitude, longitude),
+        center: GeoFirePoint(centerGeoPoint),
         radiusInKm: radiusInKm,
         field: 'geo',
         geopointFrom: (location) => location.geo.geopoint,
@@ -66,7 +65,9 @@ class WithConverterExampleState extends State<WithConverterExample> {
               position: LatLng(geoPoint.latitude, geoPoint.longitude),
               infoWindow: InfoWindow(title: name),
               onTap: () async {
-                final geoFirePoint = GeoFirePoint(latitude, longitude);
+                final geoFirePoint = GeoFirePoint(
+                  GeoPoint(geoPoint.latitude, geoPoint.longitude),
+                );
                 await showDialog<void>(
                   context: context,
                   builder: (context) => SetOrDeleteLocationDialog(
@@ -106,8 +107,10 @@ class WithConverterExampleState extends State<WithConverterExample> {
   @override
   void initState() {
     _subscription = _geoQuerySubscription(
-      latitude: _cameraPosition.target.latitude,
-      longitude: _cameraPosition.target.longitude,
+      centerGeoPoint: GeoPoint(
+        _cameraPosition.target.latitude,
+        _cameraPosition.target.longitude,
+      ),
       radiusInKm: _radiusInKm,
     );
     super.initState();
@@ -147,8 +150,10 @@ class WithConverterExampleState extends State<WithConverterExample> {
                   'lng: ${cameraPosition.target.latitude}');
               _cameraPosition = cameraPosition;
               _subscription = _geoQuerySubscription(
-                latitude: cameraPosition.target.latitude,
-                longitude: cameraPosition.target.longitude,
+                centerGeoPoint: GeoPoint(
+                  _cameraPosition.target.latitude,
+                  _cameraPosition.target.longitude,
+                ),
                 radiusInKm: _radiusInKm,
               );
             },
@@ -199,8 +204,10 @@ class WithConverterExampleState extends State<WithConverterExample> {
                   onChanged: (value) {
                     _radiusInKm = value;
                     _subscription = _geoQuerySubscription(
-                      latitude: _cameraPosition.target.latitude,
-                      longitude: _cameraPosition.target.longitude,
+                      centerGeoPoint: GeoPoint(
+                        _cameraPosition.target.latitude,
+                        _cameraPosition.target.longitude,
+                      ),
                       radiusInKm: _radiusInKm,
                     );
                     setState(() {});

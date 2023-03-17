@@ -85,8 +85,8 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
           ElevatedButton(
             onPressed: () async {
               final navigator = Navigator.of(context);
-              final name = _nameEditingController.value.text;
-              if (name.isEmpty) {
+              final newName = _nameEditingController.value.text;
+              if (newName.isEmpty) {
                 throw Exception('Enter valid name');
               }
               final newLatitude =
@@ -101,7 +101,7 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
               try {
                 await _set(
                   widget.id,
-                  widget.name,
+                  newName,
                   newLatitude,
                   newLongitude,
                 );
@@ -119,23 +119,23 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
     );
   }
 
-  /// Set location data to Cloud Firestore.
+  /// Sets location data to Cloud Firestore.
   Future<void> _set(
     String id,
-    String name,
+    String newName,
     double newLatitude,
     double newLongitude,
   ) async {
-    final geoFirePoint = GeoFirePoint(newLatitude, newLongitude);
+    final geoFirePoint = GeoFirePoint(GeoPoint(newLatitude, newLongitude));
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection('locations'),
-    ).setDocument(
+    ).set(
       id: id,
       data: {
         'geo': geoFirePoint.data,
-        'name': name,
-        'isVisible': true,
+        'name': newName,
       },
+      options: SetOptions(merge: true),
     );
     debugPrint(
       '🌍 Location data is successfully set: '

@@ -1,8 +1,6 @@
 import 'dart:math';
 
-import 'package:equatable/equatable.dart';
-
-import 'geo_fire_point.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// 32 codes to use aas Base32.
 const _base32Codes = '0123456789bcdefghjkmnpqrstuvwxyz';
@@ -235,18 +233,18 @@ const double _earthEquatorialRadius = 6378137;
 /// The meridional radius of the earth in meters.
 const double _earthPolarRadius = 6357852.3;
 
-/// Returns distance between [coordinates1] and [coordinates2] in kilometers.
+/// Returns distance between [geopoint1] and [geopoint2] in kilometers.
 double distanceInKm({
-  required final Coordinates coordinates1,
-  required final Coordinates coordinates2,
+  required final GeoPoint geopoint1,
+  required final GeoPoint geopoint2,
 }) {
   const radius = (_earthEquatorialRadius + _earthPolarRadius) / 2;
-  final latDelta = _toRadians(coordinates2.latitude - coordinates1.latitude);
-  final lonDelta = _toRadians(coordinates2.longitude - coordinates1.longitude);
+  final latDelta = _toRadians(geopoint2.latitude - geopoint1.latitude);
+  final lonDelta = _toRadians(geopoint2.longitude - geopoint1.longitude);
 
   final a = (sin(latDelta / 2) * sin(latDelta / 2)) +
-      (cos(_toRadians(coordinates2.latitude)) *
-          cos(_toRadians(coordinates1.latitude)) *
+      (cos(_toRadians(geopoint2.latitude)) *
+          cos(_toRadians(geopoint1.latitude)) *
           sin(lonDelta / 2) *
           sin(lonDelta / 2));
   final distance = radius * 2 * atan2(sqrt(a), sqrt(1 - a)) / 1000;
@@ -257,7 +255,7 @@ double _toRadians(final double num) => num * (pi / 180.0);
 
 double _getMiddleOf(final double x1, final double x2) => (x1 + x2) / 2;
 
-class _DecodedBoundingBox extends Equatable {
+class _DecodedBoundingBox {
   const _DecodedBoundingBox({
     required this.minLatitude,
     required this.minLongitude,
@@ -269,15 +267,11 @@ class _DecodedBoundingBox extends Equatable {
   final double minLongitude;
   final double maxLatitude;
   final double maxLongitude;
-
-  @override
-  List<Object> get props =>
-      [minLatitude, minLongitude, maxLatitude, maxLongitude];
 }
 
 /// Coordinates ([latitude], [longitude])
 /// with each errors ([latitudeError], [longitudeError]).
-class _CoordinatesWithErrors extends Equatable {
+class _CoordinatesWithErrors {
   const _CoordinatesWithErrors({
     required this.latitude,
     required this.longitude,
@@ -289,8 +283,4 @@ class _CoordinatesWithErrors extends Equatable {
   final double longitude;
   final double latitudeError;
   final double longitudeError;
-
-  @override
-  List<Object> get props =>
-      [latitude, longitude, latitudeError, longitudeError];
 }

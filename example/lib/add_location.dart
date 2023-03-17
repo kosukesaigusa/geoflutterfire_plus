@@ -114,13 +114,13 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     );
   }
 
-  /// Add location data to Cloud Firestore.
+  /// Adds location data to Cloud Firestore.
   Future<void> _addLocation(
     String name,
     double latitude,
     double longitude,
   ) async {
-    final geoFirePoint = GeoFirePoint(latitude, longitude);
+    final geoFirePoint = GeoFirePoint(GeoPoint(latitude, longitude));
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection('locations'),
     ).add(<String, dynamic>{
