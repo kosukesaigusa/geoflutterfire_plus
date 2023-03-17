@@ -1,3 +1,8 @@
+## 0.0.5
+
+* Update `GeoCollection.set` methods `SetOptions` parameter.
+* Update README.md.
+
 ## 0.0.4
 
 * Enables to specify whether to return geo query stream as broadcast.
