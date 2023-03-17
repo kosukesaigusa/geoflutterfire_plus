@@ -4,35 +4,34 @@
 [![MIT License][license-badge]][license]
 [![PRs Welcome][prs-badge]](https://makeapullrequest.com)
 
-geoflutterfire_plus allows your flutter apps to query geographic data saved in Cloud Firestore.
+geoflutterfire_plus allows your Flutter apps to query geographic data saved in Cloud Firestore.
 
-This package is fork from [GeoFlutterFire](https://github.com/DarshanGowda0/GeoFlutterFire), and tried to be constantly maintained to work with latest Flutter SDK, Dart SDK, and other dependency packages.
+This package is forked from [GeoFlutterFire](https://github.com/DarshanGowda0/GeoFlutterFire) and whole codes are redesigned with some new features, and will be maintained to work with latest Flutter SDK, Dart SDK, and other dependency packages.
 
 ![example](https://user-images.githubusercontent.com/13669049/223426938-392e3c65-fe92-4a7c-aad8-82ae6d296bce.gif)
 
-## Prerequisites
+## Getting started
+Prerequisites are following.
 
 ```plain
 Dart: '>=2.17.0 <3.0.0'
 Flutter: '>=2.10.0'
 ```
 
-## Installing
-
-Run this command:
+Run this command in your project.
 
 ```shell
 flutter pub add geoflutterfire_plus
 ```
 
-Or add dependency to your `pubspec.yaml`.
+Or, add dependency to your `pubspec.yaml`.
 
 ```yaml
 dependencies:
   geoflutterfire_plus: <latest-version>
 ```
 
-## Geo queries
+## Geohash and geo queries
 
 Refer to Firebase official document [Geo queries](https://firebase.google.com/docs/firestore/solutions/geoqueries) to understand what Geohash is, why you need to save geo location as Geohash, and how to query them. It will also help you understand limitations of using Geohashes for querying locations.
 
@@ -107,13 +106,16 @@ GeoCollectionReference(FirebaseFirestore.instance.collection('locations'))
 
 ## Query geo data
 
-In order to query location documents within a 50km radius of Tokyo station, you will write query like the following:
+In order to query location documents within a 50 km radius of a given point, you will write query like the following:
 
 ### Basic query
 
 ```dart
+// cloud_firestore [GeoPoint] of Tokyo Station.
+const GeoPoint tokyoStation = GeoPoint(35.681236, 139.767125);
+
 // Center of the geo query.
-final GeoFirePoint center = GeoFirePoint(GeoPoint(35.681236, 139.767125));
+final GeoFirePoint center = GeoFirePoint(tokyoStation);
 
 // Detection range from the center point.
 const double radiusInKm = 50;
@@ -144,7 +146,7 @@ final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
 );
 ```
 
-### Using `withConverter`
+#### Using `withConverter`
 
 If you would like to use `withConverter` to type-safely write query, first, you need to define its entity class and factory constructors.
 
@@ -226,7 +228,7 @@ final Stream<List<DocumentSnapshot<Location>>> stream =
 );
 ```
 
-### Custom query conditions
+#### Custom query conditions
 
 If you would like to add custom query conditions, `queryBuilder` parameter of `within` method is available.
 
@@ -255,6 +257,10 @@ final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
   queryBuilder: queryBuilder,
 );
 ```
+
+## Examples
+
+If you would like to try out the features, refer to the example project.
 
 [version-badge]: https://img.shields.io/pub/v/geoflutterfire_plus.svg
 [package]: https://pub.dartlang.org/packages/geoflutterfire_plus
