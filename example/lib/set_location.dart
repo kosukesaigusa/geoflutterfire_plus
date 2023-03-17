@@ -135,7 +135,7 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
         'geo': geoFirePoint.data,
         'name': newName,
       },
-      merge: true,
+      options: SetOptions(merge: true),
     );
     debugPrint(
       '🌍 Location data is successfully set: '

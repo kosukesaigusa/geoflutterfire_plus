@@ -33,9 +33,9 @@ class GeoCollectionReference<T> {
   Future<void> set({
     required final String id,
     required final T data,
-    final bool merge = false,
+    final SetOptions? options,
   }) =>
-      _collectionReference.doc(id).set(data, SetOptions(merge: merge));
+      _collectionReference.doc(id).set(data, options);
 
   /// Updates the [GeoPoint].data (i.e. [GeoPoint] geopoint and [String]
   /// geohash) of specified document.
