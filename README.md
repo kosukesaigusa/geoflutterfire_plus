@@ -4,7 +4,7 @@
 [![MIT License][license-badge]][license]
 [![PRs Welcome][prs-badge]](https://makeapullrequest.com)
 
-Geoflutterfire_plus allows your Flutter apps to query geographic data saved in Cloud Firestore.
+geoflutterfire_plus allows your Flutter apps to query geographic data saved in Cloud Firestore.
 
 This package is forked from [GeoFlutterFire](https://github.com/DarshanGowda0/GeoFlutterFire) and whole codes are redesigned with some new features, and will be maintained to work with latest Flutter SDK, Dart SDK, and other dependency packages.
 
@@ -106,13 +106,16 @@ GeoCollectionReference(FirebaseFirestore.instance.collection('locations'))
 
 ## Query geo data
 
-In order to query location documents within a 50 km radius of a point, you will write query like the following; (In the example below, Tokyo Station is set as the location.)
+In order to query location documents within a 50 km radius of a given point, you will write query like the following:
 
 ### Basic query
 
 ```dart
+// cloud_firestore [GeoPoint] of Tokyo Station.
+const GeoPoint tokyoStation = GeoPoint(35.681236, 139.767125);
+
 // Center of the geo query.
-final GeoFirePoint center = GeoFirePoint(GeoPoint(35.681236, 139.767125));
+final GeoFirePoint center = GeoFirePoint(tokyoStation);
 
 // Detection range from the center point.
 const double radiusInKm = 50;
