@@ -83,21 +83,21 @@ The created document would be like the screenshot below. Geohash string (`geohas
 In order to set or update the pair of latitude and longitude as `cloud_firestore` GeoPoint and also Geohash string on the specified document's given field, `GeoCollectionReference.set` or `GeoCollectionReference.updatePoint` methods are available.
 
 ```dart
-// Sets a new document giving geoFirePoint.data to 'geo' field.
+// Sets a new document by giving geoFirePoint.data to 'geo' field.
 GeoCollectionReference(FirebaseFirestore.instance.collection('locations'))
-    .setPoint(
+    .set(
   id: 'your-document-id',
   data: {
     'geo': geoFirePoint.data,
     'foo': 'foo',
     'bar': 'bar',
   },
-  merge: true,
+  options: SetOptions(merge: true),
 );
 
 // Updates an existing document's 'geo' field by giving GeoPoint instance.
 GeoCollectionReference(FirebaseFirestore.instance.collection('locations'))
-    .setPoint(
+    .updatePoint(
   id: 'your-document-id',
   field: 'geo',
   geopoint: GeoPoint(35.681236, 139.767125),
