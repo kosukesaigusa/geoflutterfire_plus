@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../add_location.dart';
 import '../set_or_delete_location.dart';
@@ -12,6 +13,19 @@ import 'utils.dart';
 
 /// Tokyo Station location for demo.
 const _tokyoStation = LatLng(35.681236, 139.767125);
+
+/// Geo query geoQueryCondition.
+class _GeoQueryCondition {
+  _GeoQueryCondition({
+    required this.radiusInKm,
+    required this.cameraPosition,
+    required this.filterIsVisible,
+  });
+
+  final double radiusInKm;
+  final CameraPosition cameraPosition;
+  final bool filterIsVisible;
+}
 
 class AdditionalQueryExample extends StatefulWidget {
   const AdditionalQueryExample({super.key});
@@ -22,70 +36,72 @@ class AdditionalQueryExample extends StatefulWidget {
 
 /// Example page using [GoogleMap].
 class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
-  /// Camera position on Google Maps.
-  /// Used as center point when running geo query.
-  CameraPosition _cameraPosition = _initialCameraPosition;
-
-  /// Detection radius (km) from the center point when running geo query.
-  double _radiusInKm = _initialRadiusInKm;
-
   /// [Marker]s on Google Maps.
   Set<Marker> _markers = {};
 
-  /// Geo query [StreamSubscription].
-  late StreamSubscription<List<DocumentSnapshot<Location>>> _subscription;
+  /// [BehaviorSubject] of currently geo query radius and camera position.
+  final _geoQueryCondition = BehaviorSubject<_GeoQueryCondition>.seeded(
+    _GeoQueryCondition(
+      radiusInKm: _initialRadiusInKm,
+      cameraPosition: _initialCameraPosition,
+      filterIsVisible: true,
+    ),
+  );
 
-  /// Returns geo query [StreamSubscription] with listener.
-  StreamSubscription<List<DocumentSnapshot<Location>>> _geoQuerySubscription({
-    required GeoPoint centerGeoPoint,
-    required double radiusInKm,
+  /// [Stream] of geo query result.
+  late Stream<List<DocumentSnapshot<Location>>> _stream;
+
+  /// Updates [_markers] by fetched geo [DocumentSnapshot]s.
+  void _updateMarkersByDocumentSnapshots(
+    List<DocumentSnapshot<Location>> documentSnapshots,
+  ) {
+    final markers = <Marker>{};
+    for (final ds in documentSnapshots) {
+      final id = ds.id;
+      final location = ds.data();
+      if (location == null) {
+        continue;
+      }
+      final name = location.name;
+      final geoPoint = location.geo.geopoint;
+      markers.add(_createMarker(id: id, name: name, geoPoint: geoPoint));
+    }
+    debugPrint('📍 markers count: ${markers.length}');
+    setState(() {
+      _markers = markers;
+    });
+  }
+
+  /// Creates a [Marker] by fetched geo location.
+  Marker _createMarker({
+    required String id,
+    required String name,
+    required GeoPoint geoPoint,
   }) =>
-      GeoCollectionReference(typedCollectionReference)
-          .subscribeWithin(
-        center: GeoFirePoint(centerGeoPoint),
-        radiusInKm: radiusInKm,
-        field: 'geo',
-        geopointFrom: (location) => location.geo.geopoint,
-        queryBuilder: (query) => query.where('isVisible', isEqualTo: true),
-        strictMode: true,
-      )
-          .listen((documentSnapshots) {
-        final markers = <Marker>{};
-        for (final ds in documentSnapshots) {
-          final id = ds.id;
-          final location = ds.data();
-          if (location == null) {
-            continue;
-          }
-          final name = location.name;
-          final geoPoint = location.geo.geopoint;
-          markers.add(
-            Marker(
-              markerId:
-                  MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
-              position: LatLng(geoPoint.latitude, geoPoint.longitude),
-              infoWindow: InfoWindow(title: name),
-              onTap: () async {
-                final geoFirePoint = GeoFirePoint(
-                  GeoPoint(geoPoint.latitude, geoPoint.longitude),
-                );
-                await showDialog<void>(
-                  context: context,
-                  builder: (context) => SetOrDeleteLocationDialog(
-                    id: id,
-                    name: name,
-                    geoFirePoint: geoFirePoint,
-                  ),
-                );
-              },
+      Marker(
+        markerId: MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
+        position: LatLng(geoPoint.latitude, geoPoint.longitude),
+        infoWindow: InfoWindow(title: name),
+        onTap: () => showDialog<void>(
+          context: context,
+          builder: (context) => SetOrDeleteLocationDialog(
+            id: id,
+            name: name,
+            geoFirePoint: GeoFirePoint(
+              GeoPoint(geoPoint.latitude, geoPoint.longitude),
             ),
-          );
-        }
-        debugPrint('📍 markers (${markers.length}): $markers');
-        setState(() {
-          _markers = markers;
-        });
-      });
+          ),
+        ),
+      );
+
+  /// Current detecting radius in kilometers.
+  double get _radiusInKm => _geoQueryCondition.value.radiusInKm;
+
+  /// Current camera position on Google Maps.
+  CameraPosition get _cameraPosition => _geoQueryCondition.value.cameraPosition;
+
+  /// Currently filtering only visible locations or not.
+  bool get _filterIsVisible => _geoQueryCondition.value.filterIsVisible;
 
   /// Initial geo query detection radius in km.
   static const double _initialRadiusInKm = 1;
@@ -107,19 +123,30 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
 
   @override
   void initState() {
-    _subscription = _geoQuerySubscription(
-      centerGeoPoint: GeoPoint(
-        _cameraPosition.target.latitude,
-        _cameraPosition.target.longitude,
+    _stream = _geoQueryCondition.switchMap(
+      (geoQueryCondition) =>
+          GeoCollectionReference(typedCollectionReference).subscribeWithin(
+        center: GeoFirePoint(
+          GeoPoint(
+            _cameraPosition.target.latitude,
+            _cameraPosition.target.longitude,
+          ),
+        ),
+        radiusInKm: geoQueryCondition.radiusInKm,
+        field: 'geo',
+        geopointFrom: (location) => location.geo.geopoint,
+        queryBuilder: _filterIsVisible
+            ? (query) => query.where('isVisible', isEqualTo: true)
+            : null,
+        strictMode: true,
       ),
-      radiusInKm: _radiusInKm,
     );
     super.initState();
   }
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _geoQueryCondition.close();
     super.dispose();
   }
 
@@ -132,6 +159,8 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
             zoomControlsEnabled: false,
             myLocationButtonEnabled: false,
             initialCameraPosition: _initialCameraPosition,
+            onMapCreated: (_) =>
+                _stream.listen(_updateMarkersByDocumentSnapshots),
             markers: _markers,
             circles: {
               Circle(
@@ -149,13 +178,12 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
             onCameraMove: (cameraPosition) {
               debugPrint('📷 lat: ${cameraPosition.target.latitude}, '
                   'lng: ${cameraPosition.target.latitude}');
-              _cameraPosition = cameraPosition;
-              _subscription = _geoQuerySubscription(
-                centerGeoPoint: GeoPoint(
-                  _cameraPosition.target.latitude,
-                  _cameraPosition.target.longitude,
+              _geoQueryCondition.add(
+                _GeoQueryCondition(
+                  radiusInKm: _radiusInKm,
+                  cameraPosition: cameraPosition,
+                  filterIsVisible: _filterIsVisible,
                 ),
-                radiusInKm: _radiusInKm,
               );
             },
             onLongPress: (latLng) => showDialog<void>(
@@ -202,17 +230,32 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
                   max: 100,
                   divisions: 99,
                   label: _radiusInKm.toStringAsFixed(1),
-                  onChanged: (value) {
-                    _radiusInKm = value;
-                    _subscription = _geoQuerySubscription(
-                      centerGeoPoint: GeoPoint(
-                        _cameraPosition.target.latitude,
-                        _cameraPosition.target.longitude,
+                  onChanged: (value) => _geoQueryCondition.add(
+                    _GeoQueryCondition(
+                      radiusInKm: value,
+                      cameraPosition: _cameraPosition,
+                      filterIsVisible: _filterIsVisible,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Text(
+                      'Filter only visible locations:',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Checkbox(
+                      value: _filterIsVisible,
+                      onChanged: (value) => _geoQueryCondition.add(
+                        _GeoQueryCondition(
+                          radiusInKm: _radiusInKm,
+                          cameraPosition: _cameraPosition,
+                          filterIsVisible: value ?? _filterIsVisible,
+                        ),
                       ),
-                      radiusInKm: _radiusInKm,
-                    );
-                    setState(() {});
-                  },
+                    ),
+                  ],
                 ),
               ],
             ),

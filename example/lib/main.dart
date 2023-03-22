@@ -5,8 +5,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'add_location.dart';
+import 'advanced/additional_query.dart';
 import 'firebase_options.dart';
 import 'set_or_delete_location.dart';
 
@@ -29,11 +31,11 @@ class App extends StatelessWidget {
           overlayShape: SliderComponentShape.noOverlay,
         ),
       ),
-      home: const Example(),
+      // home: const Example(),
       // See using with converter example by removing comment below:
       // home: const WithConverterExample(),
       // See adding custom queries example by removing comment below:
-      // home: const AdditionalQueryExample(),
+      home: const AdditionalQueryExample(),
     );
   }
 }
@@ -43,7 +45,18 @@ const _tokyoStation = LatLng(35.681236, 139.767125);
 
 /// Reference to the collection where the location data is stored.
 /// `withConverter` is available to type-safely define [CollectionReference].
-final collectionReference = FirebaseFirestore.instance.collection('locations');
+final _collectionReference = FirebaseFirestore.instance.collection('locations');
+
+/// Geo query geoQueryCondition.
+class _GeoQueryCondition {
+  _GeoQueryCondition({
+    required this.radiusInKm,
+    required this.cameraPosition,
+  });
+
+  final double radiusInKm;
+  final CameraPosition cameraPosition;
+}
 
 class Example extends StatefulWidget {
   const Example({super.key});
@@ -54,73 +67,69 @@ class Example extends StatefulWidget {
 
 /// Example page using [GoogleMap].
 class ExampleState extends State<Example> {
-  /// Camera position on Google Maps.
-  /// Used as center point when running geo query.
-  CameraPosition _cameraPosition = _initialCameraPosition;
-
-  /// Detection radius (km) from the center point when running geo query.
-  double _radiusInKm = _initialRadiusInKm;
-
   /// [Marker]s on Google Maps.
   Set<Marker> _markers = {};
 
-  /// Geo query [StreamSubscription].
-  late StreamSubscription<List<DocumentSnapshot<Map<String, dynamic>>>>
-      _subscription;
+  /// [BehaviorSubject] of currently geo query radius and camera position.
+  final _geoQueryCondition = BehaviorSubject<_GeoQueryCondition>.seeded(
+    _GeoQueryCondition(
+      radiusInKm: _initialRadiusInKm,
+      cameraPosition: _initialCameraPosition,
+    ),
+  );
 
-  /// Returns geo query [StreamSubscription] with listener.
-  StreamSubscription<List<DocumentSnapshot<Map<String, dynamic>>>>
-      _geoQuerySubscription({
-    required GeoPoint centerGeoPoint,
-    required double radiusInKm,
+  /// [Stream] of geo query result.
+  late Stream<List<DocumentSnapshot<Map<String, dynamic>>>> _stream;
+
+  /// Updates [_markers] by fetched geo [DocumentSnapshot]s.
+  void _updateMarkersByDocumentSnapshots(
+    List<DocumentSnapshot<Map<String, dynamic>>> documentSnapshots,
+  ) {
+    final markers = <Marker>{};
+    for (final ds in documentSnapshots) {
+      final id = ds.id;
+      final data = ds.data();
+      if (data == null) {
+        continue;
+      }
+      final name = data['name'] as String;
+      final geoPoint =
+          (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint;
+      markers.add(_createMarker(id: id, name: name, geoPoint: geoPoint));
+    }
+    debugPrint('📍 markers count: ${markers.length}');
+    setState(() {
+      _markers = markers;
+    });
+  }
+
+  /// Creates a [Marker] by fetched geo location.
+  Marker _createMarker({
+    required String id,
+    required String name,
+    required GeoPoint geoPoint,
   }) =>
-          GeoCollectionReference(collectionReference)
-              .subscribeWithin(
-            center: GeoFirePoint(centerGeoPoint),
-            radiusInKm: radiusInKm,
-            field: 'geo',
-            geopointFrom: (data) =>
-                (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint,
-            strictMode: true,
-          )
-              .listen((documentSnapshots) {
-            final markers = <Marker>{};
-            for (final ds in documentSnapshots) {
-              final id = ds.id;
-              final data = ds.data();
-              if (data == null) {
-                continue;
-              }
-              final name = data['name'] as String;
-              final geoPoint =
-                  (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint;
-              markers.add(
-                Marker(
-                  markerId:
-                      MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
-                  position: LatLng(geoPoint.latitude, geoPoint.longitude),
-                  infoWindow: InfoWindow(title: name),
-                  onTap: () async {
-                    final geoFirePoint = GeoFirePoint(
-                      GeoPoint(geoPoint.latitude, geoPoint.longitude),
-                    );
-                    await showDialog<void>(
-                      context: context,
-                      builder: (context) => SetOrDeleteLocationDialog(
-                        id: id,
-                        name: name,
-                        geoFirePoint: geoFirePoint,
-                      ),
-                    );
-                  },
-                ),
-              );
-            }
-            debugPrint('📍 markers (${markers.length}): $markers');
-            setState(() {
-              _markers = markers;
-            });
-          });
+      Marker(
+        markerId: MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
+        position: LatLng(geoPoint.latitude, geoPoint.longitude),
+        infoWindow: InfoWindow(title: name),
+        onTap: () => showDialog<void>(
+          context: context,
+          builder: (context) => SetOrDeleteLocationDialog(
+            id: id,
+            name: name,
+            geoFirePoint: GeoFirePoint(
+              GeoPoint(geoPoint.latitude, geoPoint.longitude),
+            ),
+          ),
+        ),
+      );
+
+  /// Current detecting radius in kilometers.
+  double get _radiusInKm => _geoQueryCondition.value.radiusInKm;
+
+  /// Current camera position on Google Maps.
+  CameraPosition get _cameraPosition => _geoQueryCondition.value.cameraPosition;
 
   /// Initial geo query detection radius in km.
   static const double _initialRadiusInKm = 1;
@@ -142,19 +151,28 @@ class ExampleState extends State<Example> {
 
   @override
   void initState() {
-    _subscription = _geoQuerySubscription(
-      centerGeoPoint: GeoPoint(
-        _cameraPosition.target.latitude,
-        _cameraPosition.target.longitude,
+    _stream = _geoQueryCondition.switchMap(
+      (geoQueryCondition) =>
+          GeoCollectionReference(_collectionReference).subscribeWithin(
+        center: GeoFirePoint(
+          GeoPoint(
+            _cameraPosition.target.latitude,
+            _cameraPosition.target.longitude,
+          ),
+        ),
+        radiusInKm: geoQueryCondition.radiusInKm,
+        field: 'geo',
+        geopointFrom: (data) =>
+            (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint,
+        strictMode: true,
       ),
-      radiusInKm: _radiusInKm,
     );
     super.initState();
   }
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _geoQueryCondition.close();
     super.dispose();
   }
 
@@ -167,6 +185,8 @@ class ExampleState extends State<Example> {
             zoomControlsEnabled: false,
             myLocationButtonEnabled: false,
             initialCameraPosition: _initialCameraPosition,
+            onMapCreated: (_) =>
+                _stream.listen(_updateMarkersByDocumentSnapshots),
             markers: _markers,
             circles: {
               Circle(
@@ -184,13 +204,11 @@ class ExampleState extends State<Example> {
             onCameraMove: (cameraPosition) {
               debugPrint('📷 lat: ${cameraPosition.target.latitude}, '
                   'lng: ${cameraPosition.target.latitude}');
-              _cameraPosition = cameraPosition;
-              _subscription = _geoQuerySubscription(
-                centerGeoPoint: GeoPoint(
-                  _cameraPosition.target.latitude,
-                  _cameraPosition.target.longitude,
+              _geoQueryCondition.add(
+                _GeoQueryCondition(
+                  radiusInKm: _radiusInKm,
+                  cameraPosition: cameraPosition,
                 ),
-                radiusInKm: _radiusInKm,
               );
             },
             onLongPress: (latLng) => showDialog<void>(
@@ -237,17 +255,12 @@ class ExampleState extends State<Example> {
                   max: 100,
                   divisions: 99,
                   label: _radiusInKm.toStringAsFixed(1),
-                  onChanged: (value) {
-                    _radiusInKm = value;
-                    _subscription = _geoQuerySubscription(
-                      centerGeoPoint: GeoPoint(
-                        _cameraPosition.target.latitude,
-                        _cameraPosition.target.longitude,
-                      ),
-                      radiusInKm: _radiusInKm,
-                    );
-                    setState(() {});
-                  },
+                  onChanged: (value) => _geoQueryCondition.add(
+                    _GeoQueryCondition(
+                      radiusInKm: value,
+                      cameraPosition: _cameraPosition,
+                    ),
+                  ),
                 ),
               ],
             ),
