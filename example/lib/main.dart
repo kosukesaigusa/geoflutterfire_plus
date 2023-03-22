@@ -8,7 +8,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'add_location.dart';
-import 'advanced/additional_query.dart';
 import 'firebase_options.dart';
 import 'set_or_delete_location.dart';
 
@@ -31,11 +30,11 @@ class App extends StatelessWidget {
           overlayShape: SliderComponentShape.noOverlay,
         ),
       ),
-      // home: const Example(),
+      home: const Example(),
       // See using with converter example by removing comment below:
       // home: const WithConverterExample(),
       // See adding custom queries example by removing comment below:
-      home: const AdditionalQueryExample(),
+      // home: const AdditionalQueryExample(),
     );
   }
 }
