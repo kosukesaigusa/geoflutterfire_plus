@@ -49,7 +49,25 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
   );
 
   /// [Stream] of geo query result.
-  late Stream<List<DocumentSnapshot<Location>>> _stream;
+  late final Stream<List<DocumentSnapshot<Location>>> _stream =
+      _geoQueryCondition.switchMap(
+    (geoQueryCondition) =>
+        GeoCollectionReference(typedCollectionReference).subscribeWithin(
+      center: GeoFirePoint(
+        GeoPoint(
+          _cameraPosition.target.latitude,
+          _cameraPosition.target.longitude,
+        ),
+      ),
+      radiusInKm: geoQueryCondition.radiusInKm,
+      field: 'geo',
+      geopointFrom: (location) => location.geo.geopoint,
+      queryBuilder: _filterIsVisible
+          ? (query) => query.where('isVisible', isEqualTo: true)
+          : null,
+      strictMode: true,
+    ),
+  );
 
   /// Updates [_markers] by fetched geo [DocumentSnapshot]s.
   void _updateMarkersByDocumentSnapshots(
@@ -120,29 +138,6 @@ class AdditionalQueryExampleState extends State<AdditionalQueryExample> {
     target: _initialTarget,
     zoom: _initialZoom,
   );
-
-  @override
-  void initState() {
-    _stream = _geoQueryCondition.switchMap(
-      (geoQueryCondition) =>
-          GeoCollectionReference(typedCollectionReference).subscribeWithin(
-        center: GeoFirePoint(
-          GeoPoint(
-            _cameraPosition.target.latitude,
-            _cameraPosition.target.longitude,
-          ),
-        ),
-        radiusInKm: geoQueryCondition.radiusInKm,
-        field: 'geo',
-        geopointFrom: (location) => location.geo.geopoint,
-        queryBuilder: _filterIsVisible
-            ? (query) => query.where('isVisible', isEqualTo: true)
-            : null,
-        strictMode: true,
-      ),
-    );
-    super.initState();
-  }
 
   @override
   void dispose() {
