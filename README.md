@@ -230,7 +230,7 @@ final Stream<List<DocumentSnapshot<Location>>> stream =
 
 #### Custom query conditions
 
-If you would like to add custom query conditions, `queryBuilder` parameter of `within` method is available.
+If you would like to add custom query conditions, `queryBuilder` parameter of `fetchWithin` (`fetchWithinWithDistance`) / `subscribeWithin` (`subscribeWithinWithDistance`) method is available.
 
 For example, when you filter only `isVisible` field is `true` documents, your `queryBuilder` would be like this:
 
@@ -240,7 +240,7 @@ Query<Location> queryBuilder(Query<Location> query) =>
     query.where('isVisible', isEqualTo: true);
 ```
 
-Then, just give the `queryBuilder` to the parameter of `within` method.
+Then, just give the `queryBuilder` to the parameter of `fetchWithin` (`fetchWithinWithDistance`) / `subscribeWithin` (`subscribeWithinWithDistance`) method.
 
 🚨 Note: Custom query condition may require a composite index. If the index is not created, you will see the "[cloud_firestore/failed-precondition] The query requires an index..." error from Firestore on the debug console. You can create the index by clicking the link in the error message.
 
