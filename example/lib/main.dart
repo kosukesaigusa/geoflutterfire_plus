@@ -78,7 +78,23 @@ class ExampleState extends State<Example> {
   );
 
   /// [Stream] of geo query result.
-  late Stream<List<DocumentSnapshot<Map<String, dynamic>>>> _stream;
+  late final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> _stream =
+      _geoQueryCondition.switchMap(
+    (geoQueryCondition) =>
+        GeoCollectionReference(_collectionReference).subscribeWithin(
+      center: GeoFirePoint(
+        GeoPoint(
+          _cameraPosition.target.latitude,
+          _cameraPosition.target.longitude,
+        ),
+      ),
+      radiusInKm: geoQueryCondition.radiusInKm,
+      field: 'geo',
+      geopointFrom: (data) =>
+          (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint,
+      strictMode: true,
+    ),
+  );
 
   /// Updates [_markers] by fetched geo [DocumentSnapshot]s.
   void _updateMarkersByDocumentSnapshots(
@@ -147,27 +163,6 @@ class ExampleState extends State<Example> {
     target: _initialTarget,
     zoom: _initialZoom,
   );
-
-  @override
-  void initState() {
-    _stream = _geoQueryCondition.switchMap(
-      (geoQueryCondition) =>
-          GeoCollectionReference(_collectionReference).subscribeWithin(
-        center: GeoFirePoint(
-          GeoPoint(
-            _cameraPosition.target.latitude,
-            _cameraPosition.target.longitude,
-          ),
-        ),
-        radiusInKm: geoQueryCondition.radiusInKm,
-        field: 'geo',
-        geopointFrom: (data) =>
-            (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint,
-        strictMode: true,
-      ),
-    );
-    super.initState();
-  }
 
   @override
   void dispose() {
