@@ -43,7 +43,23 @@ void main() async {
           .thenAnswer((final _) => Future<void>.value());
       await geoCollectionReference.set(id: id, data: data, options: options);
 
-      verify(mockDocumentReference.set(data, options)).called(1);
+    test(
+        'Test when GeoCollectionReference.updatePoint method is called, '
+        'CollectionReference.update method is called once.', () async {
+      const id = 'documentId';
+      const field = 'geo';
+      const geopoint = GeoPoint(35.681236, 139.767125);
+      final data = <String, dynamic>{field: const GeoFirePoint(geopoint).data};
+      when(mockCollectionReference.doc(id))
+          .thenAnswer((final _) => mockDocumentReference);
+      when(mockDocumentReference.update(data))
+          .thenAnswer((final _) => Future<void>.value());
+      await geoCollectionReference.updatePoint(
+        id: id,
+        field: field,
+        geopoint: geopoint,
+      );
+      verify(mockDocumentReference.update(data)).called(1);
     });
   });
 
