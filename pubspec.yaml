@@ -8,12 +8,14 @@ environment:
   flutter: '>=2.10.0'
 
 dependencies:
-  cloud_firestore: ^4.4.4
+  cloud_firestore: ^4.4.5
   flutter:
     sdk: flutter
   rxdart: ^0.27.7
 
 dev_dependencies:
-  fake_cloud_firestore: ^2.4.0
+  build_runner: ^2.3.3
+  fake_cloud_firestore: ^2.4.1+1
   flutter_test:
     sdk: flutter
+  mockito: ^5.4.0

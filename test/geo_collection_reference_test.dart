@@ -1,33 +1,62 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoflutterfire_plus/src/geo_collection_reference.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
+import 'geo_collection_reference_test.mocks.dart';
+
+@GenerateMocks([CollectionReference, DocumentReference])
 void main() async {
-  /// FakeFirebaseFirestore collection reference.
-  final fakeCollectionReference =
-      FakeFirebaseFirestore().collection('locations');
+  group('Test GeoCollectionReference writing methods.', () {
+    late final MockCollectionReference<Object> mockCollectionReference;
+    late final MockDocumentReference<Object> mockDocumentReference;
+    late final GeoCollectionReference<Object> geoCollectionReference;
 
-  /// Geohash strings to be stored, includes invalid characters as geohashes for
-  /// testing.
-  const geohashes = <String>[
-    'a',
-    'aaa',
-    'aab',
-    'aabaaaa',
-    'aaz',
-    'aa{',
-    'aa|',
-    'aa}',
-    'aa~',
-    'aba',
-    'bbb',
-    'efg',
-  ];
+    setUpAll(() {
+      mockCollectionReference = MockCollectionReference<Object>();
+      mockDocumentReference = MockDocumentReference<Object>();
+      geoCollectionReference =
+          GeoCollectionReference<Object>(mockCollectionReference);
+    });
 
-  /// A field name of geohashes to be stored.
-  const field = 'geo';
+    test(
+        'Test when GeoCollectionReference.add method is called, '
+        'CollectionReference.add method is called once.', () async {
+      final data = {'field': 'value'};
+      when(mockCollectionReference.add(data))
+          .thenAnswer((final _) => Future.value(mockDocumentReference));
+      await geoCollectionReference.add(data);
+      verify(mockCollectionReference.add(data)).called(1);
+    });
+  });
 
   group('GeoCollectionReference.geoQuery', () {
+    /// FakeFirebaseFirestore collection reference.
+    final fakeCollectionReference =
+        FakeFirebaseFirestore().collection('locations');
+
+    /// Geohash strings to be stored, includes invalid characters as geohashes for
+    /// testing.
+    const geohashes = <String>[
+      'a',
+      'aaa',
+      'aab',
+      'aabaaaa',
+      'aaz',
+      'aa{',
+      'aa|',
+      'aa}',
+      'aa~',
+      'aba',
+      'bbb',
+      'efg',
+    ];
+
+    /// A field name of geohashes to be stored.
+    const field = 'geo';
+
     setUpAll(() async {
       await Future.forEach<String>(geohashes, (final geohash) async {
         await fakeCollectionReference.add({
