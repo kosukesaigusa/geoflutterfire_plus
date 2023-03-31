@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoflutterfire_plus/src/geo_collection_reference.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -42,6 +42,8 @@ void main() async {
       when(mockDocumentReference.set(data))
           .thenAnswer((final _) => Future<void>.value());
       await geoCollectionReference.set(id: id, data: data, options: options);
+      verify(mockDocumentReference.set(data, options)).called(1);
+    });
 
     test(
         'Test when GeoCollectionReference.updatePoint method is called, '
@@ -68,8 +70,8 @@ void main() async {
     final fakeCollectionReference =
         FakeFirebaseFirestore().collection('locations');
 
-    /// Geohash strings to be stored, includes invalid characters as geohashes for
-    /// testing.
+    /// Geohash strings to be stored, includes invalid characters as geohashes
+    /// for testing.
     const geohashes = <String>[
       'a',
       'aaa',
