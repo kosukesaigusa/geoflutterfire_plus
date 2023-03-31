@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'math.dart';
+import 'utils.dart' as utils;
 
 /// A model corresponds to Cloud Firestore as geopoint field.
 class GeoFirePoint {
@@ -21,7 +22,7 @@ class GeoFirePoint {
       encode(latitude: geopoint.latitude, longitude: geopoint.longitude);
 
   /// Returns all neighbors of [GeoFirePoint].
-  List<String> get neighbors => neighborsOfGeohash(geohash);
+  List<String> get neighbors => utils.neighborGeohashesOf(geohash: geohash);
 
   /// Returns distance in kilometers between [GeoFirePoint] and given
   /// [geopoint].

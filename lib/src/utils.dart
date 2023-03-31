@@ -1,5 +1,5 @@
-import 'math.dart';
+import 'math.dart' as math;
 
 /// Returns neighbor geohashes of given [geohash].
 List<String> neighborGeohashesOf({required final String geohash}) =>
-    neighborsOfGeohash(geohash);
+    math.neighborGeohashesOf(geohash);

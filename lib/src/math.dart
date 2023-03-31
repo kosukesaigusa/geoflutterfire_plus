@@ -159,7 +159,7 @@ const _clockwiseNeighborDirections = [
 
 /// Returns all neighbors' geohash strings of given [geohash] clockwise,
 /// in the following order, north, east, south, and then west.
-List<String> neighborsOfGeohash(final String geohash) {
+List<String> neighborGeohashesOf(final String geohash) {
   final coordinatesWithErrors = _decode(geohash);
   return _clockwiseNeighborDirections
       .map(

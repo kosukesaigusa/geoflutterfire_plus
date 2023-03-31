@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../geoflutterfire_plus.dart';
+import 'geo_fire_point.dart';
 import 'math.dart';
+import 'utils.dart' as utils;
 
 /// Extended cloud_firestore [CollectionReference] for geo query features.
 class GeoCollectionReference<T> {
@@ -293,7 +294,7 @@ class GeoCollectionReference<T> {
     final precisionDigits = geohashDigitsFromRadius(radiusInKm);
     final centerGeohash = center.geohash.substring(0, precisionDigits);
     return [
-      ...neighborGeohashesOf(geohash: centerGeohash),
+      ...utils.neighborGeohashesOf(geohash: centerGeohash),
       centerGeohash,
     ];
   }
