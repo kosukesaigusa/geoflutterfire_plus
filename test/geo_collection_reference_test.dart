@@ -63,6 +63,18 @@ void main() async {
       );
       verify(mockDocumentReference.update(data)).called(1);
     });
+
+    test(
+        'Test when GeoCollectionReference.delete method is called, '
+        'DocumentReference.delete method is called once.', () async {
+      const id = 'documentId';
+      when(mockCollectionReference.doc(id))
+          .thenAnswer((final _) => mockDocumentReference);
+      when(mockDocumentReference.delete())
+          .thenAnswer((final _) => Future<void>.value());
+      await geoCollectionReference.delete(id);
+      verify(mockDocumentReference.delete()).called(1);
+    });
   });
 
   group('GeoCollectionReference.geoQuery', () {
