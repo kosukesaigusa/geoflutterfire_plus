@@ -30,6 +30,21 @@ void main() async {
       await geoCollectionReference.add(data);
       verify(mockCollectionReference.add(data)).called(1);
     });
+
+    test(
+        'Test when GeoCollectionReference.set method is called, '
+        'CollectionReference.set method is called once.', () async {
+      const id = 'documentId';
+      final data = {'field': 'value'};
+      final options = SetOptions(merge: true);
+      when(mockCollectionReference.doc(id))
+          .thenAnswer((final _) => mockDocumentReference);
+      when(mockDocumentReference.set(data))
+          .thenAnswer((final _) => Future<void>.value());
+      await geoCollectionReference.set(id: id, data: data, options: options);
+
+      verify(mockDocumentReference.set(data, options)).called(1);
+    });
   });
 
   group('GeoCollectionReference.geoQuery', () {
