@@ -33,7 +33,7 @@ void main() async {
 
     test(
         'Test when GeoCollectionReference.set method is called, '
-        'CollectionReference.set method is called once.', () async {
+        'DocumentReference.set method is called once.', () async {
       const id = 'documentId';
       final data = {'field': 'value'};
       final options = SetOptions(merge: true);
@@ -47,7 +47,7 @@ void main() async {
 
     test(
         'Test when GeoCollectionReference.updatePoint method is called, '
-        'CollectionReference.update method is called once.', () async {
+        'DocumentReference.update method is called once.', () async {
       const id = 'documentId';
       const field = 'geo';
       const geopoint = GeoPoint(35.681236, 139.767125);
