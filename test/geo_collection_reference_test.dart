@@ -8,7 +8,7 @@ import 'package:mockito/mockito.dart';
 import 'geo_collection_reference_test.mocks.dart';
 
 @GenerateMocks([CollectionReference, DocumentReference])
-void main() async {
+void main() {
   group('Test GeoCollectionReference writing methods.', () {
     late final MockCollectionReference<Object> mockCollectionReference;
     late final MockDocumentReference<Object> mockDocumentReference;
