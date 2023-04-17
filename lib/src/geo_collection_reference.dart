@@ -293,10 +293,10 @@ class GeoCollectionReference<T> {
   }) {
     final precisionDigits = geohashDigitsFromRadius(radiusInKm);
     final centerGeohash = center.geohash.substring(0, precisionDigits);
-    return [
+    return {
       ...utils.neighborGeohashesOf(geohash: centerGeohash),
       centerGeohash,
-    ];
+    }.toList();
   }
 
   /// Returns geohash query, adding query conditions if queryBuilder parameter
