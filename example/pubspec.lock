@@ -142,7 +142,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.7"
+    version: "0.0.8"
   google_maps_flutter:
     dependency: "direct main"
     description:
