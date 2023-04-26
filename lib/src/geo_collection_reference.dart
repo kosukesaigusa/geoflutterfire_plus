@@ -308,12 +308,19 @@ class GeoCollectionReference<T> {
     final Query<T>? Function(Query<T> query)? queryBuilder,
   }) {
     Query<T> query = _collectionReference;
+    query = query
+        .orderBy('$field.geohash')
+        .startAt([geohash]).endAt(['$geohash$_rangeQueryEndAtCharacter']);
     if (queryBuilder != null) {
       query = queryBuilder(query)!;
     }
-    return query
-        .orderBy('$field.geohash')
-        .startAt([geohash]).endAt(['$geohash$_rangeQueryEndAtCharacter']);
+    return query;
+    // if (queryBuilder != null) {
+    //   query = queryBuilder(query)!;
+    // }
+    // return query
+    //     .orderBy('$field.geohash')
+    //     .startAt([geohash]).endAt(['$geohash$_rangeQueryEndAtCharacter']);
   }
 
   /// Merge given list of collection streams by `Rx.combineLatest`.

@@ -93,6 +93,7 @@ class ExampleState extends State<Example> {
       geopointFrom: (data) =>
           (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint,
       strictMode: true,
+      queryBuilder: (final query) => query.orderBy('name'),
     ),
   );
 
