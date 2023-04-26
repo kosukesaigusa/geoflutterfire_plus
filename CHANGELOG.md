@@ -1,3 +1,7 @@
+## 0.0.9
+
+* Update dependency package versions.
+
 ## 0.0.8
 
 * Fix a bug by removing duplicated Geohash when the given detecting radius is too big.
