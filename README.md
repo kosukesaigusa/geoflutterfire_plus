@@ -258,6 +258,8 @@ final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream =
 );
 ```
 
+🚨 Limitation: currently `limit` and `orderBy` queries are not supported because of the geo hash query algorithm and Cloud Firestore query limitations. Alternatively documents can be sorted on client side after getting the data (documents).
+
 ## Examples
 
 If you would like to try out the features, refer to the example project.
