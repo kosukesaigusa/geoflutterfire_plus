@@ -1,3 +1,8 @@
+## 0.0.10
+
+* Update README.md
+* Add using GeoFlutterFire2 example for smooth comparison.
+
 ## 0.0.9
 
 * Update dependency package versions.
