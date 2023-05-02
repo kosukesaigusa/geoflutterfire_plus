@@ -1,44 +1,12 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'add_location.dart';
-import 'firebase_options.dart';
-import 'set_or_delete_location.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const App());
-}
-
-class App extends StatelessWidget {
-  const App({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        sliderTheme: SliderThemeData(
-          overlayShape: SliderComponentShape.noOverlay,
-        ),
-      ),
-      home: const Example(),
-      // See using with converter example by removing comment below:
-      // home: const WithConverterExample(),
-      // See adding custom queries example by removing comment below:
-      // home: const AdditionalQueryExample(),
-      // home: const GeoFlutterFire2Example(),
-    );
-  }
-}
+import '../add_location.dart';
 
 /// Tokyo Station location for demo.
 const _tokyoStation = LatLng(35.681236, 139.767125);
@@ -58,15 +26,15 @@ class _GeoQueryCondition {
   final CameraPosition cameraPosition;
 }
 
-class Example extends StatefulWidget {
-  const Example({super.key});
+class GeoFlutterFire2Example extends StatefulWidget {
+  const GeoFlutterFire2Example({super.key});
 
   @override
-  ExampleState createState() => ExampleState();
+  GeoFlutterFire2ExampleState createState() => GeoFlutterFire2ExampleState();
 }
 
-/// Example page using [GoogleMap].
-class ExampleState extends State<Example> {
+/// Example page using GeoFlutterFire2 package for smooth comparison.
+class GeoFlutterFire2ExampleState extends State<GeoFlutterFire2Example> {
   /// [Marker]s on Google Maps.
   Set<Marker> _markers = {};
 
@@ -79,32 +47,27 @@ class ExampleState extends State<Example> {
   );
 
   /// [Stream] of geo query result.
-  late final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> _stream =
+  late final Stream<List<DocumentSnapshot>> _stream =
       _geoQueryCondition.switchMap(
     (geoQueryCondition) =>
-        GeoCollectionReference(_collectionReference).subscribeWithin(
+        GeoFireCollectionRef(_collectionReference.orderBy('name')).within(
       center: GeoFirePoint(
-        GeoPoint(
-          _cameraPosition.target.latitude,
-          _cameraPosition.target.longitude,
-        ),
+        _cameraPosition.target.latitude,
+        _cameraPosition.target.longitude,
       ),
-      radiusInKm: geoQueryCondition.radiusInKm,
+      radius: geoQueryCondition.radiusInKm,
       field: 'geo',
-      geopointFrom: (data) =>
-          (data['geo'] as Map<String, dynamic>)['geopoint'] as GeoPoint,
-      strictMode: true,
     ),
   );
 
   /// Updates [_markers] by fetched geo [DocumentSnapshot]s.
   void _updateMarkersByDocumentSnapshots(
-    List<DocumentSnapshot<Map<String, dynamic>>> documentSnapshots,
+    List<DocumentSnapshot> documentSnapshots,
   ) {
     final markers = <Marker>{};
     for (final ds in documentSnapshots) {
       final id = ds.id;
-      final data = ds.data();
+      final data = ds.data() as Map<String, dynamic>?;
       if (data == null) {
         continue;
       }
@@ -129,16 +92,6 @@ class ExampleState extends State<Example> {
         markerId: MarkerId('(${geoPoint.latitude}, ${geoPoint.longitude})'),
         position: LatLng(geoPoint.latitude, geoPoint.longitude),
         infoWindow: InfoWindow(title: name),
-        onTap: () => showDialog<void>(
-          context: context,
-          builder: (context) => SetOrDeleteLocationDialog(
-            id: id,
-            name: name,
-            geoFirePoint: GeoFirePoint(
-              GeoPoint(geoPoint.latitude, geoPoint.longitude),
-            ),
-          ),
-        ),
       );
 
   /// Current detecting radius in kilometers.
@@ -261,13 +214,6 @@ class ExampleState extends State<Example> {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog<void>(
-          context: context,
-          builder: (context) => const AddLocationDialog(),
-        ),
-        child: const Icon(Icons.add),
       ),
     );
   }
