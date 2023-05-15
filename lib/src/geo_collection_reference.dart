@@ -47,7 +47,7 @@ class GeoCollectionReference<T> {
     required final String field,
     required final GeoPoint geopoint,
   }) async =>
-      (_collectionReference.doc(id)).update(<String, dynamic>{
+      _collectionReference.doc(id).update(<String, dynamic>{
         field: GeoFirePoint(geopoint).data,
       });
 
