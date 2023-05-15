@@ -1,3 +1,8 @@
+## 0.0.11
+
+* Update Flutter/Dart SDK to the currently latest version.
+* Update all_lint_rules.yaml and refactor related codes.
+
 ## 0.0.10
 
 * Update README.md
