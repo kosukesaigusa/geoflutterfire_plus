@@ -1,27 +1,18 @@
 version: 2
-enable-beta-ecosystems: true
 updates:
   - package-ecosystem: "pub"
     directory: "/"
     schedule:
       interval: "daily"
-      time: "10:00"
-      timezone: "Asia/Tokyo"
     assignees:
+      - "KosukeSaigusa"
+    reviewers:
       - "KosukeSaigusa"
   - package-ecosystem: "pub"
-    directory: "/exmaple"
+    directory: "/example"
     schedule:
       interval: "daily"
-      time: "10:00"
-      timezone: "Asia/Tokyo"
     assignees:
       - "KosukeSaigusa"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "10:00"
-      timezone: "Asia/Tokyo"
-    assignees:
+    reviewers:
       - "KosukeSaigusa"
