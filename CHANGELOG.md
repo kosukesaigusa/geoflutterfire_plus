@@ -1,3 +1,7 @@
+## 0.0.12
+
+* Update dependency package versions.
+
 ## 0.0.11
 
 * Update Flutter/Dart SDK to the currently latest version.
