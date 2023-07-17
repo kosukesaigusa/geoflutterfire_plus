@@ -194,6 +194,7 @@ class GeoCollectionReference<T> {
   /// * [center] Center point of detection.
   /// * [radiusInKm] Detection range in kilometers.
   /// * [field] Field name of cloud_firestore document.
+  /// * [geohashField] Field name of the geo hash in the [field]
   /// * [geopointFrom] Function to get cloud_firestore [GeoPoint] instance from
   /// the object (type T).
   /// * [queryBuilder] Specifies query if you would like to give additional
@@ -204,6 +205,7 @@ class GeoCollectionReference<T> {
     required final GeoFirePoint center,
     required final double radiusInKm,
     required final String field,
+    final String geohashField = 'geohash',
     required final GeoPoint Function(T obj) geopointFrom,
     final Query<T>? Function(Query<T> query)? queryBuilder,
     final bool strictMode = false,
@@ -212,6 +214,7 @@ class GeoCollectionReference<T> {
       center: center,
       radiusInKm: radiusInKm,
       field: field,
+      geohashField: geohashField,
       queryBuilder: queryBuilder,
     );
 
@@ -253,12 +256,14 @@ class GeoCollectionReference<T> {
     required final double radiusInKm,
     required final GeoFirePoint center,
     required final String field,
+    final String geohashField = 'geohash',
     final Query<T>? Function(Query<T> query)? queryBuilder,
   }) {
     return _geohashes(radiusInKm: radiusInKm, center: center)
         .map(
           (final geohash) => geoQuery(
             field: field,
+            geohashField: geohashField,
             geohash: geohash,
             queryBuilder: queryBuilder,
           ).snapshots().map((final querySnapshot) => querySnapshot.docs),
@@ -272,12 +277,14 @@ class GeoCollectionReference<T> {
     required final double radiusInKm,
     required final GeoFirePoint center,
     required final String field,
+    required final String geohashField,
     final Query<T>? Function(Query<T> query)? queryBuilder,
   }) {
     return _geohashes(radiusInKm: radiusInKm, center: center).map(
       (final geohash) async {
         final querySnapshot = await geoQuery(
           field: field,
+          geohashField: geohashField,
           geohash: geohash,
           queryBuilder: queryBuilder,
         ).get();
@@ -304,6 +311,7 @@ class GeoCollectionReference<T> {
   @visibleForTesting
   Query<T> geoQuery({
     required final String field,
+    final String geohashField = 'geohash',
     required final String geohash,
     final Query<T>? Function(Query<T> query)? queryBuilder,
   }) {
@@ -312,7 +320,7 @@ class GeoCollectionReference<T> {
       query = queryBuilder(query)!;
     }
     return query
-        .orderBy('$field.geohash')
+        .orderBy('$field.$geohashField')
         .startAt([geohash]).endAt(['$geohash$_rangeQueryEndAtCharacter']);
   }
 
