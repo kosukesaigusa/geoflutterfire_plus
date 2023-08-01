@@ -1,3 +1,7 @@
+## 0.0.16
+
+* Update dependency package versions.
+
 ## 0.0.15
 
 * Allow to specify `geohash` field name (thanks to @iabdousd).
