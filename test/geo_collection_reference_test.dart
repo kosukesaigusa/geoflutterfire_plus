@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+// import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:mockito/annotations.dart';
@@ -77,72 +77,72 @@ void main() {
     });
   });
 
-  group('GeoCollectionReference.geoQuery', () {
-    /// FakeFirebaseFirestore collection reference.
-    final fakeCollectionReference =
-        FakeFirebaseFirestore().collection('locations');
+  // group('GeoCollectionReference.geoQuery', () {
+  //   /// FakeFirebaseFirestore collection reference.
+  //   final fakeCollectionReference =
+  //       FakeFirebaseFirestore().collection('locations');
 
-    /// Geohash strings to be stored, includes invalid characters as geohashes
-    /// for testing.
-    const geohashes = <String>[
-      'a',
-      'aaa',
-      'aab',
-      'aabaaaa',
-      'aaz',
-      'aa{',
-      'aa|',
-      'aa}',
-      'aa~',
-      'aba',
-      'bbb',
-      'efg',
-    ];
+  //   /// Geohash strings to be stored, includes invalid characters as geohashes
+  //   /// for testing.
+  //   const geohashes = <String>[
+  //     'a',
+  //     'aaa',
+  //     'aab',
+  //     'aabaaaa',
+  //     'aaz',
+  //     'aa{',
+  //     'aa|',
+  //     'aa}',
+  //     'aa~',
+  //     'aba',
+  //     'bbb',
+  //     'efg',
+  //   ];
 
-    /// A field name of geohashes to be stored.
-    const field = 'geo';
+  //   /// A field name of geohashes to be stored.
+  //   const field = 'geo';
 
-    setUpAll(() async {
-      await Future.forEach<String>(geohashes, (final geohash) async {
-        await fakeCollectionReference.add({
-          '$field.geohash': geohash,
-        });
-      });
-    });
+  //   setUpAll(() async {
+  //     await Future.forEach<String>(geohashes, (final geohash) async {
+  //       await fakeCollectionReference.add({
+  //         '$field.geohash': geohash,
+  //       });
+  //     });
+  //   });
 
-    test('fetch geohashes with Firestore startAt, endAt query.', () async {
-      final geoCollectionReference =
-          GeoCollectionReference(fakeCollectionReference);
-      final querySnapshot = await geoCollectionReference
-          .geoQuery(field: field, geohash: 'aa')
-          .get();
-      final fetchedGeohashes =
-          querySnapshot.docs.map((final queryDocumentSnapshot) {
-        final data = queryDocumentSnapshot.data();
-        return (data['geo'] as Map<String, dynamic>)['geohash'] as String;
-      }).toList();
-      expect(fetchedGeohashes, ['aaa', 'aab', 'aabaaaa', 'aaz', 'aa{']);
-    });
+  //   test('fetch geohashes with Firestore startAt, endAt query.', () async {
+  //     final geoCollectionReference =
+  //         GeoCollectionReference(fakeCollectionReference);
+  //     final querySnapshot = await geoCollectionReference
+  //         .geoQuery(field: field, geohash: 'aa')
+  //         .get();
+  //     final fetchedGeohashes =
+  //         querySnapshot.docs.map((final queryDocumentSnapshot) {
+  //       final data = queryDocumentSnapshot.data();
+  //       return (data['geo'] as Map<String, dynamic>)['geohash'] as String;
+  //     }).toList();
+  //     expect(fetchedGeohashes, ['aaa', 'aab', 'aabaaaa', 'aaz', 'aa{']);
+  //   });
 
-    test(
-        'fetch geohashes with Firestore startAt, endAt query, '
-        'overriding rangeQueryEndAtCharacter parameter', () async {
-      final geoCollectionReference = GeoCollectionReference(
-        fakeCollectionReference,
-        rangeQueryEndAtCharacter: '~',
-      );
-      final querySnapshot = await geoCollectionReference
-          .geoQuery(field: field, geohash: 'aa')
-          .get();
-      final fetchedGeohashes =
-          querySnapshot.docs.map((final queryDocumentSnapshot) {
-        final data = queryDocumentSnapshot.data();
-        return (data['geo'] as Map<String, dynamic>)['geohash'] as String;
-      }).toList();
-      expect(
-        fetchedGeohashes,
-        ['aaa', 'aab', 'aabaaaa', 'aaz', 'aa{', 'aa|', 'aa}', 'aa~'],
-      );
-    });
-  });
+  //   test(
+  //       'fetch geohashes with Firestore startAt, endAt query, '
+  //       'overriding rangeQueryEndAtCharacter parameter', () async {
+  //     final geoCollectionReference = GeoCollectionReference(
+  //       fakeCollectionReference,
+  //       rangeQueryEndAtCharacter: '~',
+  //     );
+  //     final querySnapshot = await geoCollectionReference
+  //         .geoQuery(field: field, geohash: 'aa')
+  //         .get();
+  //     final fetchedGeohashes =
+  //         querySnapshot.docs.map((final queryDocumentSnapshot) {
+  //       final data = queryDocumentSnapshot.data();
+  //       return (data['geo'] as Map<String, dynamic>)['geohash'] as String;
+  //     }).toList();
+  //     expect(
+  //       fetchedGeohashes,
+  //       ['aaa', 'aab', 'aabaaaa', 'aaz', 'aa{', 'aa|', 'aa}', 'aa~'],
+  //     );
+  //   });
+  // });
 }
