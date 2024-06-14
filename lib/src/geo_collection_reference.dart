@@ -168,6 +168,7 @@ class GeoCollectionReference<T> {
   /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
+  /// * [isCacheFirst] Whether to fetch documents from cache first.
   Future<List<DocumentSnapshot<T>>> fetchWithin({
     required final GeoFirePoint center,
     required final double radiusInKm,
@@ -206,6 +207,7 @@ class GeoCollectionReference<T> {
   /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
+  /// * [isCacheFirst] Whether to fetch documents from cache first.
   Future<List<GeoDocumentSnapshot<T>>> fetchWithinWithDistance({
     required final GeoFirePoint center,
     required final double radiusInKm,
