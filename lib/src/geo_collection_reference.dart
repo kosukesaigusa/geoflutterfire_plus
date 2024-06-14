@@ -176,6 +176,7 @@ class GeoCollectionReference<T> {
     required final GeoPoint Function(T obj) geopointFrom,
     final Query<T>? Function(Query<T> query)? queryBuilder,
     final bool strictMode = false,
+    final bool isCacheFirst = false,
   }) async {
     final geoDocumentSnapshots = await fetchWithinWithDistance(
       center: center,
@@ -185,6 +186,7 @@ class GeoCollectionReference<T> {
       geopointFrom: geopointFrom,
       queryBuilder: queryBuilder,
       strictMode: strictMode,
+      isCacheFirst: isCacheFirst,
     );
     return geoDocumentSnapshots
         .map((final snapshot) => snapshot.documentSnapshot)
@@ -212,6 +214,7 @@ class GeoCollectionReference<T> {
     required final GeoPoint Function(T obj) geopointFrom,
     final Query<T>? Function(Query<T> query)? queryBuilder,
     final bool strictMode = false,
+    final bool isCacheFirst = false,
   }) async {
     final collectionFutures = _collectionFutures(
       center: center,
@@ -219,6 +222,7 @@ class GeoCollectionReference<T> {
       field: field,
       geohashField: geohashField,
       queryBuilder: queryBuilder,
+      isCacheFirst: isCacheFirst,
     );
 
     final mergedCollections = await _mergeCollectionFutures(collectionFutures);
@@ -282,15 +286,28 @@ class GeoCollectionReference<T> {
     required final String field,
     required final String geohashField,
     final Query<T>? Function(Query<T> query)? queryBuilder,
+    final bool isCacheFirst = false,
   }) {
     return _geohashes(radiusInKm: radiusInKm, center: center).map(
       (final geohash) async {
-        final querySnapshot = await geoQuery(
+        late QuerySnapshot<T> querySnapshot;
+        final query = geoQuery(
           field: field,
           geohashField: geohashField,
           geohash: geohash,
           queryBuilder: queryBuilder,
-        ).get();
+        );
+        try {
+          querySnapshot = await query.get(
+            GetOptions(
+              source: isCacheFirst ? Source.cache : Source.serverAndCache,
+            ),
+          );
+        } on FirebaseException catch (_) {
+          if (isCacheFirst) {
+            querySnapshot = await query.get();
+          }
+        }
         return querySnapshot.docs;
       },
     ).toList();
