@@ -1,3 +1,8 @@
+## 0.0.22
+
+* Update dependency package versions.
+* Update example.
+
 ## 0.0.21
 
 * Update dependency package versions.
