@@ -33,6 +33,7 @@ build/
 
 # FVM related
 .fvm/
+.fvmrc
 
 # Codecov related
 coverage/
