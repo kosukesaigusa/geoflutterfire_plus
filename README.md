@@ -11,6 +11,7 @@ This package is forked from [GeoFlutterFire](https://github.com/DarshanGowda0/Ge
 ![example](https://user-images.githubusercontent.com/13669049/223426938-392e3c65-fe92-4a7c-aad8-82ae6d296bce.gif)
 
 ## Getting started
+
 Prerequisites are following.
 
 ```plain
