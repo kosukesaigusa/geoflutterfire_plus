@@ -7,17 +7,17 @@ environment:
   sdk: '>=2.17.0 <4.0.0'
 
 dependencies:
-  cloud_firestore: ^4.17.5
+  cloud_firestore: ^5.0.1
   cupertino_icons: ^1.0.8
-  firebase_core: ^2.31.0
+  firebase_core: ^3.1.0
   flutter:
     sdk: flutter
   # Import and use GeoFlutterFire2 package (advance/geoflutterfire2.dart only) just for smooth comparison.
   # No need to import it when you develop your app.
-  geoflutterfire2: ^2.3.15
+  # geoflutterfire2: ^2.3.15
   geoflutterfire_plus:
     path: ../
-  google_maps_flutter: ^2.6.1
+  google_maps_flutter: ^2.7.0
   rxdart: ^0.27.7
 
 dev_dependencies:
