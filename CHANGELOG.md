@@ -1,3 +1,7 @@
+## 0.0.23
+
+* Add `isCacheFirst` option to `GeoCollectionReference` class `fetchWithin` method (thanks to [@Kurczaak](https://github.com/Kurczaak)).
+
 ## 0.0.22
 
 * Update dependency package versions.
@@ -29,7 +33,7 @@
 
 ## 0.0.15
 
-* Allow to specify `geohash` field name (thanks to @iabdousd).
+* Allow to specify `geohash` field name (thanks to [@iabdousd](https://github.com/iabdousd)).
 * Update dependency package versions.
 
 ## 0.0.14
