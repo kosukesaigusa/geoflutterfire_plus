@@ -168,6 +168,7 @@ class GeoCollectionReference<T> {
   /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
+  /// * [isCacheFirst] Whether to fetch documents from cache first.
   Future<List<DocumentSnapshot<T>>> fetchWithin({
     required final GeoFirePoint center,
     required final double radiusInKm,
@@ -176,6 +177,7 @@ class GeoCollectionReference<T> {
     required final GeoPoint Function(T obj) geopointFrom,
     final Query<T>? Function(Query<T> query)? queryBuilder,
     final bool strictMode = false,
+    final bool isCacheFirst = false,
   }) async {
     final geoDocumentSnapshots = await fetchWithinWithDistance(
       center: center,
@@ -185,6 +187,7 @@ class GeoCollectionReference<T> {
       geopointFrom: geopointFrom,
       queryBuilder: queryBuilder,
       strictMode: strictMode,
+      isCacheFirst: isCacheFirst,
     );
     return geoDocumentSnapshots
         .map((final snapshot) => snapshot.documentSnapshot)
@@ -204,6 +207,7 @@ class GeoCollectionReference<T> {
   /// conditions.
   /// * [strictMode] Whether to filter documents strictly within the bound of
   /// given radius.
+  /// * [isCacheFirst] Whether to fetch documents from cache first.
   Future<List<GeoDocumentSnapshot<T>>> fetchWithinWithDistance({
     required final GeoFirePoint center,
     required final double radiusInKm,
@@ -212,6 +216,7 @@ class GeoCollectionReference<T> {
     required final GeoPoint Function(T obj) geopointFrom,
     final Query<T>? Function(Query<T> query)? queryBuilder,
     final bool strictMode = false,
+    final bool isCacheFirst = false,
   }) async {
     final collectionFutures = _collectionFutures(
       center: center,
@@ -219,6 +224,7 @@ class GeoCollectionReference<T> {
       field: field,
       geohashField: geohashField,
       queryBuilder: queryBuilder,
+      isCacheFirst: isCacheFirst,
     );
 
     final mergedCollections = await _mergeCollectionFutures(collectionFutures);
@@ -282,15 +288,29 @@ class GeoCollectionReference<T> {
     required final String field,
     required final String geohashField,
     final Query<T>? Function(Query<T> query)? queryBuilder,
+    final bool isCacheFirst = false,
   }) {
     return _geohashes(radiusInKm: radiusInKm, center: center).map(
       (final geohash) async {
-        final querySnapshot = await geoQuery(
+        late QuerySnapshot<T> querySnapshot;
+        final query = geoQuery(
           field: field,
           geohashField: geohashField,
           geohash: geohash,
           queryBuilder: queryBuilder,
-        ).get();
+        );
+        try {
+          querySnapshot = await query.get(
+            GetOptions(
+              source: isCacheFirst ? Source.cache : Source.serverAndCache,
+            ),
+          );
+        } on FirebaseException {
+          if (!isCacheFirst) {
+            rethrow;
+          }
+          querySnapshot = await query.get();
+        }
         return querySnapshot.docs;
       },
     ).toList();
