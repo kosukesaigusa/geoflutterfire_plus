@@ -308,6 +308,8 @@ class GeoCollectionReference<T> {
         } on FirebaseException catch (_) {
           if (isCacheFirst) {
             querySnapshot = await query.get();
+          } else {
+            rethrow;
           }
         }
         return querySnapshot.docs;
