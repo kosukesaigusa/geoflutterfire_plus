@@ -305,10 +305,11 @@ class GeoCollectionReference<T> {
               source: isCacheFirst ? Source.cache : Source.serverAndCache,
             ),
           );
-        } on FirebaseException catch (_) {
-          if (isCacheFirst) {
-            querySnapshot = await query.get();
+        } on FirebaseException {
+          if (!isCacheFirst) {
+            rethrow;
           }
+          querySnapshot = await query.get();
         }
         return querySnapshot.docs;
       },
