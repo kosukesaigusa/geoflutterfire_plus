@@ -299,17 +299,15 @@ class GeoCollectionReference<T> {
           geohash: geohash,
           queryBuilder: queryBuilder,
         );
-        try {
-          querySnapshot = await query.get(
-            GetOptions(
-              source: isCacheFirst ? Source.cache : Source.serverAndCache,
-            ),
-          );
-        } on FirebaseException {
-          if (!isCacheFirst) {
-            rethrow;
-          }
-          querySnapshot = await query.get();
+
+        querySnapshot = await query.get(
+          GetOptions(
+            source: isCacheFirst ? Source.cache : Source.serverAndCache,
+          ),
+        );
+        if (querySnapshot.docs.isEmpty && isCacheFirst) {
+          querySnapshot =
+              await query.get(const GetOptions(source: Source.server));
         }
         return querySnapshot.docs;
       },
