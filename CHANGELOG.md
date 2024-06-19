@@ -1,3 +1,7 @@
+## 0.0.24
+
+* Improve `isCacheFirst` option in `GeoCollectionReference` class `fetchWithin` method (thanks to [@Kurczaak](https://github.com/Kurczaak)).
+
 ## 0.0.23
 
 * Add `isCacheFirst` option to `GeoCollectionReference` class `fetchWithin` method (thanks to [@Kurczaak](https://github.com/Kurczaak)).
