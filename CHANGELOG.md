@@ -1,3 +1,8 @@
+## 0.0.25
+
+* Remove fake_cloud_firestore from dependency.
+* Update rxdart dependency version.
+
 ## 0.0.24
 
 * Improve `isCacheFirst` option in `GeoCollectionReference` class `fetchWithin` method (thanks to [@Kurczaak](https://github.com/Kurczaak)).
