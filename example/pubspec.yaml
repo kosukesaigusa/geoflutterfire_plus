@@ -18,7 +18,7 @@ dependencies:
   geoflutterfire_plus:
     path: ../
   google_maps_flutter: ^2.7.0
-  rxdart: ^0.27.7
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:
