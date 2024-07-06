@@ -1,3 +1,7 @@
+## 0.0.26
+
+* Update dependency package versions.
+
 ## 0.0.25
 
 * Remove fake_cloud_firestore from dependency.
