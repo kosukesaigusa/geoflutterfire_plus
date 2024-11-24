@@ -82,6 +82,7 @@ class GeoCollectionReference<T> {
         geopointFrom: geopointFrom,
         queryBuilder: queryBuilder,
         strictMode: strictMode,
+        asBroadcastStream: asBroadcastStream,
       ).map(
         (final snapshots) => snapshots
             .map((final snapshot) => snapshot.documentSnapshot)
