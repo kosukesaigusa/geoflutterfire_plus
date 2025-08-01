@@ -34,3 +34,6 @@ jobs:
             kosukesaigusa
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           timeout_minutes: '60'
+          allowed_tools: |
+            Bash(flutter:*)
+            Bash(dart:*)
