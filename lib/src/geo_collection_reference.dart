@@ -338,12 +338,16 @@ class GeoCollectionReference<T> {
     final Query<T>? Function(Query<T> query)? queryBuilder,
   }) {
     Query<T> query = _collectionReference;
+    // Apply geohash orderBy FIRST, before queryBuilder
+    query = query
+        .orderBy('$field.$geohashField')
+        .startAt([geohash])
+        .endAt(['$geohash$_rangeQueryEndAtCharacter']);
+    // Then apply additional filters/orderBy from queryBuilder
     if (queryBuilder != null) {
       query = queryBuilder(query)!;
     }
-    return query
-        .orderBy('$field.$geohashField')
-        .startAt([geohash]).endAt(['$geohash$_rangeQueryEndAtCharacter']);
+    return query;
   }
 
   /// Merge given list of collection streams by `Rx.combineLatest`.
