@@ -1,3 +1,7 @@
+## 0.0.34
+
+* Fix `geoQuery` to apply `geohash` `orderBy` before `queryBuilder` (thanks to [@radvansky-tomas](https://github.com/radvansky-tomas)).
+
 ## 0.0.33
 
 * Update dependency package versions.
